@@ -25,11 +25,16 @@ class Notification(BaseModel):
     class Meta:
         ordering = ['-created_at']
 
+class NotificationSubject(models.TextChoices):
+    NEW_POST = "new_post", "New Post"
+    POST_REPLY = "post_reply", "Post Reply"
+    POST_REACTION = "post_reaction", "Post Reaction"
+
 
 class UserNotificationSettings(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='notification_settings')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    subject = models.CharField(max_length=50, null=True, blank=True) # e.g., "new_post", "post_reply"
+    subject = models.CharField(max_length=50, choices=NotificationSubject.choices, null=True, blank=True)
 
     unique_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     notifications_enabled = models.BooleanField(default=True)

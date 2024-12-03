@@ -130,11 +130,11 @@ def get_users_by_notification_type(model, object_id, subject):
     }
 
 # commands:
-# create_user('jane_smith', 'jane@example.com', 'password456')
+create_user('ram', 'ram@example.com', 'password')
 # print_users()
-# add_subscriber_to_forum_1('jane_smith',ForumPost,1)
-# remove_subscriber_from_forum_1('jane_smith',ForumPost,1)
 # print_notification_subscribers(ForumPost, 1)
-# print_user_notification_settings('rabinphaiju')
+# add_subscriber_to_forum_1('sijal',ForumPost,1)
+# remove_subscriber_from_forum_1('jane_smith',ForumPost,1)
+# print_user_notification_settings('sijal')
 # notify_forum_subscribers(ForumPost, 1, 'new_post')
-print(get_users_by_notification_type(ForumPost, 1, 'new_post'))
+# print(get_users_by_notification_type(ForumPost, 1, 'new_post'))
