@@ -1,11 +1,10 @@
 import os
 import django
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'notification_hub.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from base.models import UserNotificationSettings,NotificationSubscriber
+from base.models import UserNotificationSettings,NotificationSubscriber,NotificationSubject,Notification
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from forum.models import ForumPost
@@ -76,28 +75,35 @@ def print_user_notification_settings(username):
     else:
         print("User not found.")
 
-def notify_forum_subscribers(model, object_id, subject):
-    content_type = ContentType.objects.get_for_model(model)
-    
-    notification_subscribers = NotificationSubscriber.objects.filter(
-        content_type=content_type,
-        generic_object_id=object_id
-    )
+def notify_forum_subscribers_in_app(model, object_id, subject):
+    forumPost = ForumPost.objects.get(id=object_id)
+    if forumPost:
+        content_type = ContentType.objects.get_for_model(model)
 
-    # Get users who have email notifications enabled for the given subject
-    subscribers_with_email_notify = (
-        UserNotificationSettings.objects.filter(
-            Q(user__in=notification_subscribers.values_list('subscribers', flat=True)),
-            content_type=content_type,
-            subject=subject,
-            email=True
-        )
-        .select_related('user')  # Optimize query by fetching related user objects
-    )
+        # notification_subscribers = NotificationSubscriber.objects.filter(content_type=content_type,generic_object_id=object_id)
+        # subscribers_with_in_app_notify = (
+        #     UserNotificationSettings.objects.filter(
+        #         Q(user__in=notification_subscribers.values_list('subscribers', flat=True)),
+        #         content_type=content_type,subject=subject,in_app=True)
+        #     .select_related('user'))
+        
+        subscribers_with_in_app_notify = UserNotificationSettings.objects.filter(
+            Q(user__notification_subscribers__content_type=content_type) &
+            Q(user__notification_subscribers__generic_object_id=object_id) &
+            Q(content_type=content_type) &
+            Q(subject=subject) &
+            Q(in_app=True)
+        ).select_related('user')
 
-    for notification_setting in subscribers_with_email_notify:
-        user = notification_setting.user
-        print(f"Notify {user.username} via email for subject: {subject}")
+        for notification_setting in subscribers_with_in_app_notify:
+            user = notification_setting.user
+            print(user.username)
+            Notification.objects.create(
+                user=user,
+                title=f"{forumPost.title} in {content_type.model}",
+                description=f"{forumPost.title} has been posted in {content_type.model}.",
+                category=subject
+            )
 
 def get_users_by_notification_type(model, object_id, subject):
     content_type = ContentType.objects.get_for_model(model)
@@ -130,11 +136,11 @@ def get_users_by_notification_type(model, object_id, subject):
     }
 
 # commands:
-create_user('ram', 'ram@example.com', 'password')
+# create_user('ram', 'ram@example.com', 'password')
 # print_users()
 # print_notification_subscribers(ForumPost, 1)
-# add_subscriber_to_forum_1('sijal',ForumPost,1)
+# add_subscriber_to_forum_1('ram',ForumPost,1)
 # remove_subscriber_from_forum_1('jane_smith',ForumPost,1)
 # print_user_notification_settings('sijal')
-# notify_forum_subscribers(ForumPost, 1, 'new_post')
-# print(get_users_by_notification_type(ForumPost, 1, 'new_post'))
+notify_forum_subscribers_in_app(ForumPost, 1, NotificationSubject.NEW_POST)
+# print(get_users_by_notification_type(ForumPost, 1, NotificationSubject.NEW_POST))

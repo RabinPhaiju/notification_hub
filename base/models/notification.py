@@ -10,26 +10,25 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+class NotificationSubject(models.TextChoices):
+    NEW_POST = "new_post", "New Post"
+    POST_REPLY = "post_reply", "Post Reply"
+    POST_REACTION = "post_reaction", "Post Reaction"
+
 class Notification(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     is_read = models.BooleanField(default=False)
     title = models.CharField(max_length=100)
     description = models.TextField()
     image_url = models.URLField(blank=True, null=True)
-    category = models.CharField(max_length=20)
-    slug = models.SlugField(max_length=100, unique=True)
+    category = models.CharField(max_length=20,choices=NotificationSubject.choices)
+    slug = models.SlugField(max_length=100, unique=False, null=True, blank=True)
 
     def __str__(self):
         return self.title
     
     class Meta:
         ordering = ['-created_at']
-
-class NotificationSubject(models.TextChoices):
-    NEW_POST = "new_post", "New Post"
-    POST_REPLY = "post_reply", "Post Reply"
-    POST_REACTION = "post_reaction", "Post Reaction"
-
 
 class UserNotificationSettings(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='notification_settings')
@@ -60,7 +59,7 @@ class UserNotificationSettings(BaseModel):
     
 
 class NotificationSubscriber(models.Model):
-    subscribers = models.ManyToManyField('auth.User', related_name='subscriptions')
+    subscribers = models.ManyToManyField('auth.User', related_name='notification_subscribers')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,related_name='subscriber_model')
     generic_object_id = models.PositiveIntegerField(null=True, blank=True)
     generic_object = GenericForeignKey('content_type', 'generic_object_id')

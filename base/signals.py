@@ -8,7 +8,7 @@ from base.models import UserNotificationSettings, NotificationSubject
 # Create notification settings for new users -> ForumPost
 @receiver(post_save, sender=User)
 def create_notification_settings(sender, instance, created, **kwargs):
-    if created:
+    if created: # and verified user
         content_type = ContentType.objects.get_for_model(ForumPost)
         for subject in NotificationSubject.choices:
             UserNotificationSettings.objects.create(
