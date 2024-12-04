@@ -80,18 +80,11 @@ def notify_forum_subscribers_in_app(model, object_id, subject):
     if forumPost:
         content_type = ContentType.objects.get_for_model(model)
 
-        # notification_subscribers = NotificationSubscriber.objects.filter(content_type=content_type,generic_object_id=object_id)
-        # subscribers_with_in_app_notify = (
-        #     UserNotificationSettings.objects.filter(
-        #         Q(user__in=notification_subscribers.values_list('subscribers', flat=True)),
-        #         content_type=content_type,subject=subject,in_app=True)
-        #     .select_related('user'))
-        
         subscribers_with_in_app_notify = UserNotificationSettings.objects.filter(
-            Q(user__notification_subscribers__content_type=content_type) &
-            Q(user__notification_subscribers__generic_object_id=object_id) &
-            Q(content_type=content_type) &
-            Q(subject=subject) &
+            Q(user__notification_subscribers__content_type=content_type),
+            Q(user__notification_subscribers__generic_object_id=object_id),
+            Q(subject=subject),
+            Q(notifications_enabled = True) ,
             Q(in_app=True)
         ).select_related('user')
 
@@ -135,12 +128,18 @@ def get_users_by_notification_type(model, object_id, subject):
         'push_notification_users': list(push_notification_users)
     }
 
+def update_forum_post_title(model, object_id, title):
+    forumPost = model.objects.get(id=object_id)
+    forumPost.title = title
+    forumPost.save()
+
 # commands:
 # create_user('ram', 'ram@example.com', 'password')
 # print_users()
-# print_notification_subscribers(ForumPost, 1)
+# print_notification_subscribers(ForumPost, 3)
 # add_subscriber_to_forum_1('ram',ForumPost,1)
 # remove_subscriber_from_forum_1('jane_smith',ForumPost,1)
 # print_user_notification_settings('sijal')
-notify_forum_subscribers_in_app(ForumPost, 1, NotificationSubject.NEW_POST)
+# notify_forum_subscribers_in_app(ForumPost, 3, NotificationSubject.NEW_POST)
 # print(get_users_by_notification_type(ForumPost, 1, NotificationSubject.NEW_POST))
+# update_forum_post_title(ForumPost, 1, "Updated Title11")
