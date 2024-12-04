@@ -4,7 +4,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'notification_hub.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from base.models import UserNotificationSettings,NotificationSubscriber,NotificationSubject,Notification
+from base.models import UserNotificationSettings,NotificationSubscriber,ForumNotificationSubject,Notification
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from forum.models import ForumPost
@@ -136,24 +136,24 @@ def update_forum_post_title(model, object_id, title):
 def try_mixin(model, object_id):
     forumPost = model.objects.get(id=object_id)
     if forumPost:
-        forumPost.notify_subscribers(subject=NotificationSubject.NEW_POST,type='email',
+        forumPost.notify_subscribers(subject=ForumNotificationSubject.NEW_POST,type='push_notification',
                         emailSubject="this is email subject",
                         emailBody="This is an important message body.",
                         )
-        # forumPost.notify(subject=NotificationSubject.NEW_POST,type='in_app',
+        # forumPost.notify(subject=ForumNotificationSubject.NEW_POST,type='in_app',
         #                  title="you have a new notification",
         #                  description="This is an important message.",
         #                  )
 
 
 # commands:
-# create_user('shyam', 'shyam@example.com', 'password')
+create_user('kope', 'kope@example.com', 'password')
 # print_users()
 # print_notification_subscribers(ForumPost, 3)
 # add_subscriber_to_forum_1('ram',ForumPost,3)
 # remove_subscriber_from_forum_1('jane_smith',ForumPost,1)
 # print_user_notification_settings('sijal')
-# notify_forum_subscribers_in_app(ForumPost, 3, NotificationSubject.NEW_POST)
-# print(get_users_by_notification_type(ForumPost, 1, NotificationSubject.NEW_POST))
+# notify_forum_subscribers_in_app(ForumPost, 3, ForumNotificationSubject.NEW_POST)
+# print(get_users_by_notification_type(ForumPost, 1, ForumNotificationSubject.NEW_POST))
 # update_forum_post_title(ForumPost, 3, "post 3 updated")
 try_mixin(ForumPost, 7)

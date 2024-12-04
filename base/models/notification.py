@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from .subject_choices import NotificationSubject,DefaultNotificationSubject
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -9,11 +10,6 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
-
-class NotificationSubject(models.TextChoices):
-    NEW_POST = "new_post", "New Post"
-    POST_REPLY = "post_reply", "Post Reply"
-    POST_REACTION = "post_reaction", "Post Reaction"
 
 class Notification(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -33,7 +29,8 @@ class Notification(BaseModel):
 class UserNotificationSettings(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='notification_settings')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    subject = models.CharField(max_length=50, choices=NotificationSubject.choices, null=True, blank=True) #All
+    subject = models.CharField(max_length=50, choices=NotificationSubject.choices, 
+        default=DefaultNotificationSubject.ALL, null=True, blank=True)
 
     unique_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     notifications_enabled = models.BooleanField(default=True)

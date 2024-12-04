@@ -3,14 +3,15 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from forum.models import ForumPost
 from django.contrib.contenttypes.models import ContentType
-from base.models import UserNotificationSettings, NotificationSubject
+from base.models import UserNotificationSettings, EssentialNotificationSubject
 
 # Create notification settings for new users -> ForumPost
 @receiver(post_save, sender=User)
 def create_notification_settings(sender, instance, created, **kwargs):
-    if created: # and verified user
+    current_user = User.objects.get(id=instance.id)
+    if created and current_user.email: # and verified user
         content_type = ContentType.objects.get_for_model(ForumPost)
-        for subject in NotificationSubject.choices:
+        for subject in EssentialNotificationSubject.choices:
             UserNotificationSettings.objects.create(
                 user=instance,
                 content_type=content_type,
