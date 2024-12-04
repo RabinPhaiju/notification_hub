@@ -124,3 +124,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email Backend for Development
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'  # Mailpit SMTP server
+EMAIL_PORT = 1025         # Default SMTP port for Mailpit
+EMAIL_USE_TLS = False     # No TLS for development
+EMAIL_USE_SSL = False     # No SSL for development
+EMAIL_HOST_USER = ''      # No authentication needed
+EMAIL_HOST_PASSWORD = ''  # No authentication needed
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'  # Default sender email
+

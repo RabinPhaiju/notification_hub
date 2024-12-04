@@ -135,7 +135,16 @@ def update_forum_post_title(model, object_id, title):
 
 def try_mixin(model, object_id):
     forumPost = model.objects.get(id=object_id)
-    forumPost.notify(subject=NotificationSubject.NEW_POST,type='email', message="testing1")
+    if forumPost:
+        forumPost.notify_subscribers(subject=NotificationSubject.NEW_POST,type='email',
+                        emailSubject="this is email subject",
+                        emailBody="This is an important message body.",
+                        )
+        # forumPost.notify(subject=NotificationSubject.NEW_POST,type='in_app',
+        #                  title="you have a new notification",
+        #                  description="This is an important message.",
+        #                  )
+
 
 # commands:
 # create_user('shyam', 'shyam@example.com', 'password')
@@ -147,4 +156,4 @@ def try_mixin(model, object_id):
 # notify_forum_subscribers_in_app(ForumPost, 3, NotificationSubject.NEW_POST)
 # print(get_users_by_notification_type(ForumPost, 1, NotificationSubject.NEW_POST))
 # update_forum_post_title(ForumPost, 3, "post 3 updated")
-try_mixin(ForumPost, 3)
+try_mixin(ForumPost, 7)

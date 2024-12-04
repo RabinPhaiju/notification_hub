@@ -1,13 +1,19 @@
 from django.contrib.contenttypes.models import ContentType
-from base.models import UserNotificationSettings
+from base.models import UserNotificationSettings,Notification
 from django.db.models import Q
+from django.core import mail
+import os
+from django.conf import settings
 
 class NotificationMixin:
-    def notify(self, subject,type, **kwargs):
+    def notify_subscribers(self, subject,type, **kwargs):
         if(type == 'email'):
+            email_from = 'app@collection.ai'
+            email_subject = kwargs.get('emailSubject')
+            email_body = kwargs.get('emailBody')
             content_type = ContentType.objects.get_for_model(self.__class__)
 
-            subscribers_with_in_app_notify = UserNotificationSettings.objects.filter(
+            subscribers_to_notify = UserNotificationSettings.objects.filter(
                 Q(user__notification_subscribers__content_type=content_type),
                 Q(user__notification_subscribers__generic_object_id=self.id),
                 Q(subject=subject),
@@ -15,8 +21,52 @@ class NotificationMixin:
                 Q(email=True)
             ).select_related('user')
 
+            user_emails = subscribers_to_notify.values_list('user__email', flat=True)
+            for user_email in user_emails:
+                # mail.send_mail(
+                #     email_subject,
+                #     email_body,
+                #     email_from,
+                #     [user_email],
+                #     fail_silently=False,
+                # )
+
+
+                # message = mail.EmailMessage(
+                #     email_subject,
+                #     email_body,
+                #     email_from,
+                #     [user_email],
+                # )
+                # file_path = os.path.join(settings.BASE_DIR, "test_image.png")
+                # message.attach_file(file_path)
+                # message.send()
+
+                html_content = "<p>This is an <strong>important</strong> message.</p>"
+                msg = mail.EmailMultiAlternatives(email_subject, email_body, email_from, [user_email])
+                msg.attach_alternative(html_content, "text/html")
+                # msg.content_subtype = "html"
+                msg.send()
+        elif (type == 'in_app'):
+            title = kwargs.get('title')
+            description = kwargs.get('description')
+            content_type = ContentType.objects.get_for_model(self.__class__)
+
+            subscribers_with_in_app_notify = UserNotificationSettings.objects.filter(
+                Q(user__notification_subscribers__content_type=content_type),
+                Q(user__notification_subscribers__generic_object_id=self.id),
+                Q(subject=subject),
+                Q(notifications_enabled = True) ,
+                Q(in_app=True)
+            ).select_related('user')
+
             for notification_setting in subscribers_with_in_app_notify:
                 user = notification_setting.user
-                print(user.username)
+                Notification.objects.create( #  bulk_create does not trigger model signals (e.g., post_save or pre_save).
+                    user=user,
+                    title=title,
+                    description=description,
+                    category=subject
+                )
         else:
             print('Notification type not supported')
