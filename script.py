@@ -134,7 +134,7 @@ def update_forum_post_title(model, object_id, title):
     forumPost.save()
 
 # commands:
-# create_user('ram', 'ram@example.com', 'password')
+# create_user('shyam', 'shyam@example.com', 'password')
 # print_users()
 # print_notification_subscribers(ForumPost, 3)
 # add_subscriber_to_forum_1('ram',ForumPost,1)
@@ -142,4 +142,4 @@ def update_forum_post_title(model, object_id, title):
 # print_user_notification_settings('sijal')
 # notify_forum_subscribers_in_app(ForumPost, 3, NotificationSubject.NEW_POST)
 # print(get_users_by_notification_type(ForumPost, 1, NotificationSubject.NEW_POST))
-# update_forum_post_title(ForumPost, 1, "Updated Title11")
+update_forum_post_title(ForumPost, 7, "Updated Title shyam post")

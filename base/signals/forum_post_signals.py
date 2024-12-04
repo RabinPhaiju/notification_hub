@@ -6,18 +6,6 @@ from django.db.models import F
 from django.contrib.contenttypes.models import ContentType
 from base.models import UserNotificationSettings, NotificationSubject,NotificationSubscriber
 
-# Create notification settings for new users -> ForumPost
-@receiver(post_save, sender=User)
-def create_notification_settings(sender, instance, created, **kwargs):
-    if created: # and verified user
-        content_type = ContentType.objects.get_for_model(ForumPost)
-        for subject in NotificationSubject.choices:
-            UserNotificationSettings.objects.create(
-                user=instance,
-                content_type=content_type,
-                subject=subject[0]
-            )
-
 @receiver(post_save, sender=ForumPost)
 def forum_post_created(sender, instance, created, **kwargs):
     if created:
