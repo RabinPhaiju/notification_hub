@@ -33,7 +33,7 @@ class Notification(BaseModel):
 class UserNotificationSettings(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='notification_settings')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    subject = models.CharField(max_length=50, choices=NotificationSubject.choices, null=True, blank=True)
+    subject = models.CharField(max_length=50, choices=NotificationSubject.choices, null=True, blank=True) #All
 
     unique_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     notifications_enabled = models.BooleanField(default=True)

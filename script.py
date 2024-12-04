@@ -133,13 +133,18 @@ def update_forum_post_title(model, object_id, title):
     forumPost.title = title
     forumPost.save()
 
+def try_mixin(model, object_id):
+    forumPost = model.objects.get(id=object_id)
+    forumPost.notify(subject=NotificationSubject.NEW_POST,type='email', message="testing1")
+
 # commands:
 # create_user('shyam', 'shyam@example.com', 'password')
 # print_users()
 # print_notification_subscribers(ForumPost, 3)
-# add_subscriber_to_forum_1('ram',ForumPost,1)
+# add_subscriber_to_forum_1('ram',ForumPost,3)
 # remove_subscriber_from_forum_1('jane_smith',ForumPost,1)
 # print_user_notification_settings('sijal')
 # notify_forum_subscribers_in_app(ForumPost, 3, NotificationSubject.NEW_POST)
 # print(get_users_by_notification_type(ForumPost, 1, NotificationSubject.NEW_POST))
-update_forum_post_title(ForumPost, 7, "Updated Title shyam post")
+# update_forum_post_title(ForumPost, 3, "post 3 updated")
+try_mixin(ForumPost, 3)
