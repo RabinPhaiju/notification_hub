@@ -2,7 +2,6 @@ from django.contrib.contenttypes.models import ContentType
 from base.models import UserNotificationSettings,Notification
 from django.db.models import Q
 from django.core import mail
-from base.models import DefaultNotificationSubject
 from django.conf import settings
 from django.db.models import Count
 
@@ -17,7 +16,7 @@ class NotificationModelMixin:
             subscribers_to_notify = UserNotificationSettings.objects.filter(
                 Q(user__notification_subscribers__content_type=content_type),
                 Q(user__notification_subscribers__generic_object_id=self.id),
-                Q(subject__in=[subject,DefaultNotificationSubject.ALL]),
+                Q(subject__in=[subject]),
                 Q(notifications_enabled = True) ,
                 Q(email=True)
             ).select_related('user')
@@ -56,7 +55,7 @@ class NotificationModelMixin:
             subscribers_with_in_app_notify = UserNotificationSettings.objects.filter(
                 Q(user__notification_subscribers__content_type=content_type),
                 Q(user__notification_subscribers__generic_object_id=self.id),
-                Q(subject__in=[subject,DefaultNotificationSubject.ALL]),
+                Q(subject__in=[subject]),
                 Q(notifications_enabled = True) ,
                 Q(in_app=True)
             ).select_related('user')
@@ -74,8 +73,8 @@ class NotificationModelMixin:
             subscribers_with_push_notify = UserNotificationSettings.objects.filter(
                 Q(user__notification_subscribers__content_type=content_type),
                 Q(user__notification_subscribers__generic_object_id=self.id),
-                Q(subject__in=[subject,DefaultNotificationSubject.ALL]),
-                Q(notifications_enabled = True) ,
+                Q(subject__in=[subject]),
+                Q(notifications_enabled = True),
                 Q(push_notification=True)
             ).select_related('user')
             # .select_related('user').distinct('user') # postgres only

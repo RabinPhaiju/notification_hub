@@ -1,3 +1,3 @@
 from .notification import Notification,NotificationSubscriber,UserNotificationSettings
 
-from .subject_choices import NotificationSubject,DefaultNotificationSubject,ForumNotificationSubject,AuthNotificationSubject,EssentialNotificationSubject
+from .subject_choices import NotificationSubject,ForumNotificationSubject,AuthNotificationSubject

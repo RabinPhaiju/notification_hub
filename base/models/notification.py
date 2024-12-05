@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from .subject_choices import NotificationSubject,DefaultNotificationSubject
+from .subject_choices import NotificationSubject
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -29,10 +29,8 @@ class Notification(BaseModel):
 class UserNotificationSettings(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='notification_settings')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    subject = models.CharField(max_length=50, choices=NotificationSubject.choices, 
-        default=DefaultNotificationSubject.ALL, null=True, blank=True)
+    subject = models.CharField(max_length=50, choices=NotificationSubject.choices, null=True, blank=True)
 
-    unique_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     notifications_enabled = models.BooleanField(default=True)
 
     in_app = models.BooleanField(default=True)
@@ -41,15 +39,6 @@ class UserNotificationSettings(BaseModel):
 
     class Meta:
         unique_together = ('user', 'content_type', 'subject')
-
-    def save(self, *args, **kwargs):
-    # Generate UUID based on user_id, content_type, and subject
-        if not self.unique_key:
-            self.unique_key = uuid.uuid5(
-                uuid.NAMESPACE_DNS, 
-                f"{self.user_id}-{self.content_type_id}-{self.subject}"
-            )
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username}'s {self.subject} settings for {self.content_type.model}"

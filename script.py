@@ -146,7 +146,7 @@ def try_mixin(model, object_id):
                          )
 
 # commands:
-# create_user('kope', 'kope@example.com', 'password')
+# create_user('sane', 'sane@example.com', 'password')
 # print_users()
 # print_notification_subscribers(ForumPost, 3)
 # add_subscriber_to_forum_1('ram',ForumPost,3)
@@ -155,4 +155,4 @@ def try_mixin(model, object_id):
 # notify_forum_subscribers_in_app(ForumPost, 3, ForumNotificationSubject.NEW_POST)
 # print(get_users_by_notification_type(ForumPost, 1, ForumNotificationSubject.NEW_POST))
 # update_forum_post_title(ForumPost, 3, "post 3 updated")
-try_mixin(ForumPost, 7)
+# try_mixin(ForumPost, 8)
