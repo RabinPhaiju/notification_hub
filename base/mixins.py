@@ -6,7 +6,7 @@ from base.models import DefaultNotificationSubject
 from django.conf import settings
 from django.db.models import Count
 
-class NotificationMixin:
+class NotificationModelMixin:
     def notify_subscribers(self, subject,type, **kwargs):
         if(type == 'email'):
             email_from = 'app@collection.ai'
