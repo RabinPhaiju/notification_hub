@@ -16,7 +16,6 @@ class Utils:
 
         for subscriber_setting in subscribers_settings_subject:
             if subscriber_setting.user not in user_group:
-                    
                 user_group[subscriber_setting.user] = {
                         subscriber_setting.subject: {
                             **{type_key: getattr(subscriber_setting, type_key) for type_key in types},

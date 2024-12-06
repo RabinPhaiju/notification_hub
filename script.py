@@ -90,6 +90,15 @@ def notify_subscribers(model, object_id, subject, types=['in_app','email']):
         user_group = Utils.get_user_group_settings(model,object_id, subject, types)
 
         for user in user_group:
+            # check if user have 'subject' settings
+            if not user_group[user].get(subject,False):
+                # create user notification subject
+                uns = UserNotificationSetting.objects.create(
+                    user=user,subject=subject,
+                    content_type=ContentType.objects.get_for_model(model),
+                )
+                user_group[user][subject] = {'notifications_enabled':uns.notifications_enabled,'in_app':uns.in_app,'email':uns.email,'push_notification':uns.push_notification}
+            
             if user_group[user]['all']['notifications_enabled'] and user_group[user][subject]['notifications_enabled']:
                 if 'in_app' in types and user_group[user]['all']['in_app'] and user_group[user][subject]['in_app']:
                     print('in_app',user,user_group[user])
@@ -114,5 +123,5 @@ def try_mixin(model, object_id, subject):
 # remove_subscriber_from_forum('ram',ForumPost,1)
 # print_notification_subscribers(ForumPost, 1)
 # update_forum_post_title(ForumPost, 1, "post 1 updated")
-# notify_subscribers(ForumPost, 1, ForumNotificationSubject.NEW_POST)
-try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
+notify_subscribers(ForumPost, 1, ForumNotificationSubject.NEW_POST)
+# try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
