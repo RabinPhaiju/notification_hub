@@ -9,5 +9,8 @@ class AuthNotificationSubject(models.TextChoices):
     LOGIN = "login", "Login"
     SIGNUP = "signup", "Signup"
 
-class NotificationSubject:
-    choices = (ForumNotificationSubject.choices + AuthNotificationSubject.choices)
+class DefaultNotificationSubject(models.TextChoices):
+    ALL = "all", "All"
+    
+class NotificationSubjectChoices:
+     choices = DefaultNotificationSubject.choices + AuthNotificationSubject.choices + ForumNotificationSubject.choices

@@ -3,17 +3,29 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from forum.models import ForumPost
 from django.contrib.contenttypes.models import ContentType
-from base.models import UserNotificationSettings, NotificationSubject
+from base.models import UserNotificationSetting,ForumNotificationSubject,AuthNotificationSubject,DefaultNotificationSubject
+
+def get_all_choices(NotificationSubject):
+    return DefaultNotificationSubject.choices + NotificationSubject.choices
 
 # Create notification settings for new users -> ForumPost
 @receiver(post_save, sender=User)
 def create_notification_settings(sender, instance, created, **kwargs):
     current_user = User.objects.get(id=instance.id)
     if created and current_user.email: # and verified user
-        content_type = ContentType.objects.get_for_model(ForumPost)
-        for subject in NotificationSubject.choices:
-            UserNotificationSettings.objects.create(
+        # ForumPost
+        content_type_forum = ContentType.objects.get_for_model(ForumPost)
+        for subject in get_all_choices(ForumNotificationSubject):
+            UserNotificationSetting.objects.create(
                 user=instance,
-                content_type=content_type,
+                content_type=content_type_forum,
+                subject=subject[0],
+            )
+        # Auth
+        content_type_auth = ContentType.objects.get_for_model(User)
+        for subject in get_all_choices(AuthNotificationSubject):
+            UserNotificationSetting.objects.create(
+                user=instance,
+                content_type=content_type_auth,
                 subject=subject[0]
             )

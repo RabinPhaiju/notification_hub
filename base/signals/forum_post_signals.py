@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from forum.models import ForumPost
 from django.db.models import F
 from django.contrib.contenttypes.models import ContentType
-from base.models import UserNotificationSettings, NotificationSubject,NotificationSubscriber
+from base.models import UserNotificationSetting, NotificationSubjectChoices,NotificationSubscriber
 
 @receiver(post_save, sender=ForumPost)
 def forum_post_created(sender, instance, created, **kwargs):

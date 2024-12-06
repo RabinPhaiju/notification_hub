@@ -4,10 +4,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'notification_hub.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from base.models import UserNotificationSettings,NotificationSubscriber,ForumNotificationSubject,Notification
+from base.models import UserNotificationSetting,NotificationSubscriber,ForumNotificationSubject
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 from forum.models import ForumPost
+from base.utils import Utils
 
 def create_user(username, email, password):
     user = User.objects.create_user(
@@ -22,8 +22,23 @@ def print_users():
     for user in users:
         print(user.username)
 
-def add_subscriber_to_forum_1(user_name, model, object_id):
+def print_user_notification_settings(username):
+    user = User.objects.filter(username=username)
+    if user.exists():
+        settings = UserNotificationSetting.objects.filter(user=user.first());
+        if settings.exists():
+            for setting in settings:
+                print(f'model: {setting.content_type.model}, subject: {setting.subject}, enabled: {setting.notifications_enabled}')
+                print(f'email: {setting.email}, in_app: {setting.in_app}, push_notification: {setting.push_notification}')
+                print('---------------')
+        else:
+            print("No settings found.")
+    else:
+        print("User not found.")
+
+def add_subscriber_to_forum(user_name, model, object_id):
     user = User.objects.get(username=user_name)
+    # to add users to subscribers, add directly no need to check the user's settings.
     content_type = ContentType.objects.get_for_model(model)
     notificationSubs = NotificationSubscriber.objects.filter(
         content_type=content_type,
@@ -35,7 +50,8 @@ def add_subscriber_to_forum_1(user_name, model, object_id):
     else: 
         print("No subscribers found.")
 
-def remove_subscriber_from_forum_1(user_name, model, object_id):
+def remove_subscriber_from_forum(user_name, model, object_id):
+    # directly remove user from subscribers
     user = User.objects.get(username=user_name)
     content_type = ContentType.objects.get_for_model(model)
     notificationSubs = NotificationSubscriber.objects.filter(
@@ -61,98 +77,42 @@ def print_notification_subscribers(model, object_id):
     else:
         print("No subscribers found.")
 
-def print_user_notification_settings(username):
-    user = User.objects.filter(username=username)
-    if user.exists():
-        settings = UserNotificationSettings.objects.filter(user=user.first()).first()
-        if settings:
-            print('enabled:', settings.notifications_enabled)
-            print('in_app:', settings.in_app)
-            print('email:', settings.email)
-            print('push_notification:', settings.push_notification)
-        else:
-            print("No settings found.")
-    else:
-        print("User not found.")
-
-def notify_forum_subscribers_in_app(model, object_id, subject):
-    forumPost = ForumPost.objects.get(id=object_id)
-    if forumPost:
-        content_type = ContentType.objects.get_for_model(model)
-
-        subscribers_with_in_app_notify = UserNotificationSettings.objects.filter(
-            Q(user__notification_subscribers__content_type=content_type),
-            Q(user__notification_subscribers__generic_object_id=object_id),
-            Q(subject=subject),
-            Q(notifications_enabled = True) ,
-            Q(in_app=True)
-        ).select_related('user')
-
-        for notification_setting in subscribers_with_in_app_notify:
-            user = notification_setting.user
-            print(user.username)
-            Notification.objects.create(
-                user=user,
-                title=f"{forumPost.title} in {content_type.model}",
-                description=f"{forumPost.title} has been posted in {content_type.model}.",
-                category=subject
-            )
-
-def get_users_by_notification_type(model, object_id, subject):
-    content_type = ContentType.objects.get_for_model(model)
-
-    # Retrieve NotificationSubscribers for the specific object
-    notification_subscribers = NotificationSubscriber.objects.filter(
-        content_type=content_type,
-        generic_object_id=object_id
-    )
-
-    # Get subscribed users in format of list
-    subscribed_users = notification_subscribers.values_list('subscribers', flat=True)
-
-    # Filter UserNotificationSettings based on subscribed users, content type, and subject
-    user_settings = UserNotificationSettings.objects.filter(
-        user__id__in=subscribed_users,
-        content_type=content_type,
-        subject=subject
-    )
-
-    # Separate users based on notification preferences
-    email_users = user_settings.filter(email=True).values_list('user__email', flat=True)
-    in_app_users = user_settings.filter(in_app=True).values_list('user__id', flat=True)
-    push_notification_users = user_settings.filter(push_notification=True).values_list('user__id', flat=True)
-
-    return {
-        'email_users': list(email_users),
-        'in_app_users': list(in_app_users),
-        'push_notification_users': list(push_notification_users)
-    }
-
 def update_forum_post_title(model, object_id, title):
     forumPost = model.objects.get(id=object_id)
     forumPost.title = title
     forumPost.save()
 
-def try_mixin(model, object_id):
-    forumPost = model.objects.get(id=object_id)
-    if forumPost:
-        # forumPost.notify_subscribers(subject=ForumNotificationSubject.NEW_POST,type='email',
-        #                 emailSubject="this is email subject",
-        #                 emailBody="This is an important message body.",
-        #                 )
-        forumPost.notify_subscribers(subject=ForumNotificationSubject.NEW_POST,type='in_app',
+def notify_subscribers(model, object_id, subject, types=['in_app','email']):
+    default_types = ['notifications_enabled']
+    types = list(set(default_types+types))
+    record = model.objects.get(id=object_id)
+    if record:
+        user_group = Utils.get_user_group_settings(model,object_id, subject, types)
+
+        for user in user_group:
+            if user_group[user]['all']['notifications_enabled'] and user_group[user][subject]['notifications_enabled']:
+                if 'in_app' in types and user_group[user]['all']['in_app'] and user_group[user][subject]['in_app']:
+                    print('in_app',user,user_group[user])
+                if 'email' in types and user_group[user]['all']['email'] and user_group[user][subject]['email']:
+                    print('email',user,user_group[user])   
+                if 'push_notification' in types and user_group[user]['all']['push_notification'] and user_group[user][subject]['push_notification']: 
+                    print('push_notification',user,user_group[user])
+
+def try_mixin(model, object_id, subject):
+    record = model.objects.get(id=object_id)
+    if record:
+        record.notify_subscribers(subject=subject,types=['in_app','email'],
                          title="you have a new notification",
                          description="This is an important message.",
                          )
 
 # commands:
-# create_user('sane', 'sane@example.com', 'password')
+# create_user('shyam', 'shyam@example.com', 'password')
 # print_users()
-# print_notification_subscribers(ForumPost, 3)
-# add_subscriber_to_forum_1('ram',ForumPost,3)
-# remove_subscriber_from_forum_1('jane_smith',ForumPost,1)
-# print_user_notification_settings('sijal')
-# notify_forum_subscribers_in_app(ForumPost, 3, ForumNotificationSubject.NEW_POST)
-# print(get_users_by_notification_type(ForumPost, 1, ForumNotificationSubject.NEW_POST))
-# update_forum_post_title(ForumPost, 3, "post 3 updated")
-# try_mixin(ForumPost, 8)
+# print_user_notification_settings('ram')
+# add_subscriber_to_forum('ram',ForumPost,1)
+# remove_subscriber_from_forum('ram',ForumPost,1)
+# print_notification_subscribers(ForumPost, 1)
+# update_forum_post_title(ForumPost, 1, "post 1 updated")
+# notify_subscribers(ForumPost, 1, ForumNotificationSubject.NEW_POST)
+try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)

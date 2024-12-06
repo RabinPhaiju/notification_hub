@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from .subject_choices import NotificationSubject
+from .subject_choices import NotificationSubjectChoices
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -17,7 +17,7 @@ class Notification(BaseModel):
     title = models.CharField(max_length=100)
     description = models.TextField()
     image_url = models.URLField(blank=True, null=True)
-    category = models.CharField(max_length=20,choices=NotificationSubject.choices)
+    category = models.CharField(max_length=20,choices=NotificationSubjectChoices.choices)
     slug = models.SlugField(max_length=100, unique=False, null=True, blank=True)
 
     def __str__(self):
@@ -26,10 +26,10 @@ class Notification(BaseModel):
     class Meta:
         ordering = ['-created_at']
 
-class UserNotificationSettings(BaseModel):
+class UserNotificationSetting(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='notification_settings')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    subject = models.CharField(max_length=50, choices=NotificationSubject.choices, null=True, blank=True)
+    subject = models.CharField(max_length=50, choices=NotificationSubjectChoices.choices, null=True, blank=True)
 
     notifications_enabled = models.BooleanField(default=True)
 
@@ -41,7 +41,7 @@ class UserNotificationSettings(BaseModel):
         unique_together = ('user', 'content_type', 'subject')
 
     def __str__(self):
-        return f"{self.user.username}'s {self.subject} settings for {self.content_type.model}"
+        return f"{self.user.username}--{self.content_type.model}--{self.subject}"
     
 
 class NotificationSubscriber(models.Model):
