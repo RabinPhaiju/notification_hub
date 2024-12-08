@@ -3,10 +3,10 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from forum.models import ForumPost
 from django.contrib.contenttypes.models import ContentType
-from base.models import UserNotificationSetting,ForumNotificationSubject,AuthNotificationSubject,DefaultNotificationSubject
+from base.models import UserNotificationSetting,ForumNotificationSubject,AuthNotificationSubject,NotificationSubjectAll
 
 def get_all_choices(NotificationSubject):
-    return DefaultNotificationSubject.choices + NotificationSubject.choices
+    return NotificationSubjectAll.choices + NotificationSubject.choices
 
 # Create notification settings for new users -> ForumPost
 @receiver(post_save, sender=User)
