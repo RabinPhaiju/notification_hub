@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'forum.apps.ForumConfig',
     'base.apps.BaseConfig',
+    'offer.apps.OfferConfig',
 ]
 
 MIDDLEWARE = [

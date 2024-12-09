@@ -4,10 +4,11 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'notification_hub.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from base.models import UserNotificationSetting,NotificationSubscriber,ForumNotificationSubject,NotificationSubjectAll,ForumReplyNotificationSubject
+from base.models import UserNotificationSetting,NotificationSubscriber,ForumNotificationSubject,NotificationSubjectAll,ForumReplyNotificationSubject,OfferNotificationSubject
 from django.contrib.contenttypes.models import ContentType
 from forum.models import ForumPost,ForumPostReply
-from base.utils import Utils
+from offer.models import Offer
+from utils import get_user_group_settings,get_user_not_in_group_all
 
 def create_user(username, email, password):
     user = User.objects.create_user(
@@ -87,7 +88,7 @@ def notify_subscribers(model, object_id, subject, types=['in_app','email','push_
     types = list(set(default_types+types))
     record = model.objects.get(id=object_id)
     if record:
-        user_group = Utils.get_user_group_settings(model,object_id, subject, types)
+        user_group = get_user_group_settings(model,object_id, subject, types)
 
         # Bulk create user notification settings -- but bulk create dont work signals (post_save,pre_save,post_delete)
         users_not_with_group = [u for u, details in user_group.items() if not details.get(subject)]
@@ -125,6 +126,17 @@ def try_mixin(model, object_id, subject):
     if record:
         record.notify_subscribers(subject=subject,types=['in_app','email','push_notification'])
 
+def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
+    users_to_create = get_user_not_in_group_all(model)
+    if users_to_create.exists():
+        content_type = ContentType.objects.get_for_model(model)
+        notification_to_create = [
+            UserNotificationSetting(user=user, subject=subject, content_type=content_type)
+            for user in users_to_create
+            for subject in subjects
+        ]
+        UserNotificationSetting.objects.bulk_create(notification_to_create)
+ 
 # commands:
 # create_user('ram', 'ram@example.com', 'password')
 # print_users()
@@ -137,3 +149,9 @@ def try_mixin(model, object_id, subject):
 # try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
 # notify_subscribers(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
 try_mixin(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
+
+# create_notification_settings(Offer)
+
+# Offer
+# try_mixin(Offer, 1, OfferNotificationSubject.NEW_OFFER)
+

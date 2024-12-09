@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from dataclasses import dataclass
+from typing import Optional
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -54,26 +56,17 @@ class NotificationSubscriber(models.Model):
     def __str__(self):
         return f"{self.content_type.model} {self.generic_object_id}"
 
+@dataclass
 class NotificationAttribute:
-    def __init__(
-        self,
-        title=None,
-        body=None,
-        action_link=None,
-        image_url=None,
-        email_html=None,
-        email_attachment=None,
-        push_data=None,
-    ):
-        self.title = title
-        self.body = body
-        self.action_link = action_link
-        self.image_url = image_url
-        self.email_html = email_html
-        self.email_attachment = email_attachment
-        self.push_data = push_data
+    title: Optional[str] = None
+    body: Optional[str] = None
+    action_link: Optional[str] = None
+    image_url: Optional[str] = None
+    email_html: Optional[str] = None
+    email_attachment: Optional[str] = None
+    push_data: Optional[str] = None
 
-    def as_dict(self,type):
+    def as_dict(self, type):
         if type == 'email':
             return {
                 'title': self.title,
@@ -94,5 +87,13 @@ class NotificationAttribute:
                 'action_link': self.action_link,
                 'image_url': self.image_url,
             }
-        else:
-            return {}
+        return {}
+    
+@dataclass
+class NotificationAttributeAdapter:
+    notification_attribute: object = None
+    user: object = None
+    notification_type: object = None
+
+    def __str__(self):
+        return f"NotificationAttribute for {self.user} via {self.notification_type}"

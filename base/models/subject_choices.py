@@ -10,6 +10,10 @@ class ForumReplyNotificationSubject(models.TextChoices):
     REPLY_EDIT = "reply_edit", "Reply Edit"
     REPLY_REACTION = "reply_reaction", "Reply Reaction"
 
+class OfferNotificationSubject(models.TextChoices):
+    NEW_OFFER = "new_offer", "New Offer"
+    OFFER_REMINDER = "offer_reminder", "Offer Reminder"
+
 class AuthNotificationSubject(models.TextChoices):
     LOGIN = "login", "Login"
     SIGNUP = "signup", "Signup"
