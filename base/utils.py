@@ -48,5 +48,24 @@ class Utils:
                         'push_data': '{"action": "view_post", "message": "Your latest post is live!"}',
                     },
                 },
-            }
+            },
+            'ForumPostReply':{
+                'new_reply': {
+                    'in_app': {
+                        'title': 'A reply to your post has been published!',
+                        'body': '',
+                        'action_link': 'forum/reply/',
+                    },
+                    'email': {
+                        'title': 'Your reply is live on the forum!',
+                        'body': 'We’re excited to let you know that your new reply has been successfully published.',
+                        'email_html': '<h1>Your reply is live!</h1><p>Check it out on the forum now.</p>',
+                    },
+                    'push_notification': {
+                        'title': 'New Reply Published',
+                        'body': 'A new reply to your latest forum post is now live. Tap to view!',
+                        'push_data': '{"action": "view_post", "message": "Your latest reply is live!"}',
+                    },
+                },
+            },
         }[model][subject][type]

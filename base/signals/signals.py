@@ -1,9 +1,9 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from forum.models import ForumPost
+from forum.models import ForumPost,ForumPostReply
 from django.contrib.contenttypes.models import ContentType
-from base.models import UserNotificationSetting,ForumNotificationSubject,AuthNotificationSubject,NotificationSubjectAll
+from base.models import UserNotificationSetting,ForumNotificationSubject,AuthNotificationSubject,NotificationSubjectAll,ForumReplyNotificationSubject
 
 def get_all_choices(NotificationSubject):
     return NotificationSubjectAll.choices + NotificationSubject.choices
@@ -21,6 +21,14 @@ def create_notification_settings(sender, instance, created, **kwargs):
                 content_type=content_type_forum,
                 subject=subject[0],
             )
+        # ForumPostReply
+        content_type_reply = ContentType.objects.get_for_model(ForumPostReply)
+        for subject in get_all_choices(ForumReplyNotificationSubject):
+            UserNotificationSetting.objects.create(
+                user=instance,
+                content_type=content_type_reply,
+                subject=subject[0],
+        )
         # Auth
         content_type_auth = ContentType.objects.get_for_model(User)
         for subject in get_all_choices(AuthNotificationSubject):

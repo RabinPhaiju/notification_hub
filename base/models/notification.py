@@ -45,7 +45,6 @@ class UserNotificationSetting(BaseModel):
     def __str__(self):
         return f"{self.user.username}--{self.content_type.model}--{self.subject}"
     
-
 class NotificationSubscriber(models.Model):
     subscribers = models.ManyToManyField('auth.User', related_name='notification_subscribers')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,related_name='subscriber_model')
@@ -54,7 +53,6 @@ class NotificationSubscriber(models.Model):
 
     def __str__(self):
         return f"{self.content_type.model} {self.generic_object_id}"
-
 
 class NotificationAttribute:
     def __init__(

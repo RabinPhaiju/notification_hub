@@ -11,7 +11,8 @@ class NotificationModelMixin:
         user_group = Utils.get_user_group_settings(self.__class__,self.id, subject, types)
 
         # Bulk create user notification settings -- but bulk create dont work signals (post_save,pre_save,post_delete)
-        users_not_with_group = [u for u, details in user_group.items() if not details.get(subject)]
+        users_not_with_group = [u for u, details in user_group.items() if not details.get(subject)] 
+        # TODO subject can be 'all' or 'subject'. what if 'all' is also not in user_group_settings
         settings_to_create = [
             UserNotificationSetting(user=user, subject=subject, content_type=ContentType.objects.get_for_model(self.__class__))
             for user in users_not_with_group
@@ -35,7 +36,7 @@ class NotificationModelMixin:
                     na = NotificationAttribute(
                          title=model_attributes['title'], body=model_attributes['body'],
                          action_link=model_attributes['action_link']+str(self.id),
-                         image_url=self.image_url,
+                         image_url=getattr(self, 'image_url', '') if hasattr(self, 'image_url') else '',
                          )
                     # Bulk create notifications by storing Notification Attributes
                     Notification.objects.create(user=user,title=na.title,description=na.body,category=subject,action_link=na.action_link,image_url=na.image_url)
@@ -48,7 +49,7 @@ class NotificationModelMixin:
                         na = NotificationAttribute(
                             title=model_attributes['title'], body=model_attributes['body'],
                             email_html=model_attributes['email_html'],
-                            email_attachment=self.image_url,
+                            email_attachment=getattr(self, 'image_url', '') if hasattr(self, 'image_url') else '',
                             )
                         MailMessage.objects.create(
                              subject=na.title,
@@ -69,6 +70,7 @@ class NotificationModelMixin:
                         push_data=json.dumps(json_data),
                         )
                     CloudMessage.objects.create(
+                            user=user,
                             title=na.title,
                             body=na.body,
                             data=na.push_data

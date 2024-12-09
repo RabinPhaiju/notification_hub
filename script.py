@@ -4,9 +4,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'notification_hub.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from base.models import UserNotificationSetting,NotificationSubscriber,ForumNotificationSubject,NotificationSubjectAll
+from base.models import UserNotificationSetting,NotificationSubscriber,ForumNotificationSubject,NotificationSubjectAll,ForumReplyNotificationSubject
 from django.contrib.contenttypes.models import ContentType
-from forum.models import ForumPost
+from forum.models import ForumPost,ForumPostReply
 from base.utils import Utils
 
 def create_user(username, email, password):
@@ -134,4 +134,6 @@ def try_mixin(model, object_id, subject):
 # print_notification_subscribers(ForumPost, 1)
 # update_forum_post_title(ForumPost, 1, "post 1 updated")
 # notify_subscribers(ForumPost, 1, ForumNotificationSubject.NEW_POST,types=['in_app','email'])
-try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
+# try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
+# notify_subscribers(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
+try_mixin(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
