@@ -1,4 +1,4 @@
-from base.models import UserNotificationSetting
+from base.models import UserNotificationSetting,NotificationSubjectAll
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
@@ -11,7 +11,7 @@ class Utils:
             Q(user__notification_subscribers__content_type=content_type),
             Q(user__notification_subscribers__generic_object_id=object_id),
             Q(content_type=content_type),
-            Q(subject__in=[subject,'all']),
+            Q(subject__in=[subject,NotificationSubjectAll.ALL]),
         ).select_related('user')
 
         for subscriber_setting in subscribers_settings_subject:
@@ -26,3 +26,27 @@ class Utils:
             }
 
         return user_group
+    
+    def get_model_attributes(model,subject,type):
+        return {
+            'ForumPost':{
+                'new_post': {
+                    'in_app': {
+                        'title': 'Your post has been published!',
+                        'body': 'Your new post is now live on the forum. Check it out.',
+                        'action_link': 'forum/',
+                    },
+                    'email': {
+                        'title': 'Your post is live on the forum!',
+                        'body': 'We’re excited to let you know that your new post has been successfully published.',
+                        'email_html': '<h1>Your post is live!</h1><p>Check it out on the forum now.</p>',
+                        
+                    },
+                    'push_notification': {
+                        'title': 'New Post Published',
+                        'body': 'Your latest forum post is now live. Tap to view!',
+                        'push_data': '{"action": "view_post", "message": "Your latest post is live!"}',
+                    },
+                },
+            }
+        }[model][subject][type]

@@ -82,7 +82,7 @@ def update_forum_post_title(model, object_id, title):
     forumPost.title = title
     forumPost.save()
 
-def notify_subscribers(model, object_id, subject, types=['in_app','email']):
+def notify_subscribers(model, object_id, subject, types=['in_app','email','push_notification']):
     default_types = ['notifications_enabled']
     types = list(set(default_types+types))
     record = model.objects.get(id=object_id)
@@ -102,8 +102,7 @@ def notify_subscribers(model, object_id, subject, types=['in_app','email']):
             if not user_group[user].get(subject,False):
                 # create user notification subject individually
                 # uns = UserNotificationSetting.objects.create(
-                #     user=user,subject=subject,
-                #     content_type=ContentType.objects.get_for_model(model),
+                #     user=user,subject=subject,content_type=ContentType.objects.get_for_model(model),
                 # )
                 user_group[user][subject.lower()] = {'notifications_enabled':True,'in_app':True,'email':True,'push_notification':True}
             
@@ -124,10 +123,7 @@ def notify_subscribers(model, object_id, subject, types=['in_app','email']):
 def try_mixin(model, object_id, subject):
     record = model.objects.get(id=object_id)
     if record:
-        record.notify_subscribers(subject=subject,types=['in_app','email'],
-                         title="you have a new notification",
-                         description="This is an important message.",
-                         )
+        record.notify_subscribers(subject=subject,types=['in_app','email','push_notification'])
 
 # commands:
 # create_user('ram', 'ram@example.com', 'password')
@@ -137,5 +133,5 @@ def try_mixin(model, object_id, subject):
 # remove_subscriber_from_forum('ram',ForumPost,1)
 # print_notification_subscribers(ForumPost, 1)
 # update_forum_post_title(ForumPost, 1, "post 1 updated")
-notify_subscribers(ForumPost, 1, ForumNotificationSubject.NEW_POST)
-# try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
+# notify_subscribers(ForumPost, 1, ForumNotificationSubject.NEW_POST,types=['in_app','email'])
+try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)

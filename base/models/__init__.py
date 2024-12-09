@@ -1,3 +1,7 @@
-from .notification import Notification,NotificationSubscriber,UserNotificationSetting
+from .notification import Notification,NotificationSubscriber,UserNotificationSetting,NotificationAttribute
 
 from .subject_choices import NotificationSubjectChoices,ForumNotificationSubject,AuthNotificationSubject,NotificationSubjectAll
+
+from .mail_message import MailMessage
+
+from .cloud_message import CloudMessage
