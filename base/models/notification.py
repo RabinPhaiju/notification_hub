@@ -20,7 +20,7 @@ class Notification(BaseModel):
     title = models.CharField(max_length=100)
     description = models.TextField()
     image_url = models.URLField(blank=True, null=True)
-    category = models.CharField(max_length=20,choices=NotificationSubjectChoices.choices)
+    category = models.CharField(max_length=20,choices=NotificationSubjectChoices.choices) # rename to subject
     action_link = models.URLField(blank=True, null=True)
     slug = models.SlugField(max_length=100, unique=False, null=True, blank=True)
 
@@ -91,9 +91,9 @@ class NotificationAttribute:
     
 @dataclass
 class NotificationAttributeAdapter:
-    notification_attribute: object = None
+    attribute: object = None
     user: object = None
-    notification_type: object = None
+    type: object = None
 
     def __str__(self):
         return f"NotificationAttribute for {self.user} via {self.notification_type}"

@@ -1,0 +1,83 @@
+from base.models import NotificationSubjectAll,MailMessage,CloudMessage,NotificationAttributeAdapter,Notification
+import json
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from utils import get_model_attributes
+
+def create_notification_attributes_from_users(obj,user_group,subject,types,notification_attribute):
+    notification_type_attributes = {
+        'in_app':[],
+        'email':[],
+        'push_notification':[]
+    }
+    for user in user_group:
+        # check if user have 'subject' settings
+        if not user_group[user].get(subject,False):
+            user_group[user][subject.lower()] = {'notifications_enabled':True,'in_app':True,'email':True,'push_notification':True}
+
+        if user_group[user][NotificationSubjectAll.ALL]['notifications_enabled'] and user_group[user][subject]['notifications_enabled']:
+            if 'in_app' in types and\
+            user_group[user][NotificationSubjectAll.ALL]['in_app'] and\
+            user_group[user][subject]['in_app']:
+                na = notification_attribute or get_model_attributes(obj,subject)
+                na.action_link = 'test/action_link',
+                na.image_url=getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else '',
+                naa = NotificationAttributeAdapter(user=user,type='in_app',attribute=na)
+                notification_type_attributes['in_app'].append(naa)
+                # Create notification_attribute from another method, that gathers all attributes from respective model or hardcoded.
+
+            if 'email' in types and\
+            user_group[user][NotificationSubjectAll.ALL]['email'] and\
+            user_group[user][subject]['email']:
+                na = notification_attribute or get_model_attributes(obj,subject)
+                na.email_attachment=getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else '',
+                naa = NotificationAttributeAdapter(user=user,type='email',attribute=na)
+                notification_type_attributes['email'].append(naa)
+
+            if 'push_notification' in types and\
+            user_group[user][NotificationSubjectAll.ALL]['push_notification'] and\
+            user_group[user][subject]['push_notification']: 
+                na = notification_attribute or get_model_attributes(obj,subject)
+                json_data = json.loads(na.push_data)
+                json_data['id'] = str(obj.id)
+                na.push_data=json.dumps(json_data)
+                naa = NotificationAttributeAdapter(user=user,type='push_notification',attribute=na)
+                notification_type_attributes['push_notification'].append(naa)
+    
+    # Sent Notification
+    settings_to_create_in_app = [
+        Notification(
+            user=una.user,
+            title=una.attribute.title,
+            description=una.attribute.body,
+            category=subject,
+            action_link=una.attribute.action_link,
+            image_url=una.attribute.image_url
+            )
+        for una in notification_type_attributes['in_app']
+    ]
+    Notification.objects.bulk_create(settings_to_create_in_app)
+    
+    settings_to_create_mail = [
+        MailMessage(
+            subject=una.attribute.title,
+            body=una.attribute.email_html if una.attribute.email_html !='' else una.attribute.body,
+            # attachment=una.attribute.email_attachment,
+            sender_email='app@example.com',
+            recipient_emails=','.join([una.user.email]),
+        )
+        for una in notification_type_attributes['email']
+    ]
+    MailMessage.objects.bulk_create(settings_to_create_mail)
+
+    settings_to_create_cloud = [
+        CloudMessage(
+            user=una.user,
+            title=una.attribute.title,
+            body=una.attribute.body,
+            data=una.attribute.push_data
+        )
+        for una in notification_type_attributes['push_notification']
+    ]
+    CloudMessage.objects.bulk_create(settings_to_create_cloud)

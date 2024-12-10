@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Your Post is Live!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .email-header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .email-body {
+            padding: 20px;
+        }
+        .email-body h1 {
+            color: #4CAF50;
+            font-size: 24px;
+        }
+        .email-footer {
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>Congratulations, Your Post is Live!</h1>
+        </div>
+        <div class="email-body">
+            <h1>{{ title }}</h1>
+            <p>{{ body }}</p>
+            <a href="{{ action_link }}" class="btn">View Your Post</a>
+        </div>
+        <div class="email-footer">
+            <p>You are receiving this email because you created a post on our forum. If you have any questions, contact support.</p>
+        </div>
+    </div>
+</body>
+</html>

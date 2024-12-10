@@ -1,0 +1,16 @@
+new_reply:
+  title: "Your reply is live on the forum!"
+  body: "We’re excited to let you know that your new reply has been successfully published."
+  action_link: "forum/reply/"
+  email_html: |
+    <h1>Your reply is live!</h1>
+    <p>Check it out on the forum now.</p>
+  push_data: '{"action": "view_post", "message": "Your latest reply is live!"}'
+reply_reaction:
+  title: "Someone reacted to your reply!"
+  body: "Your reply received a new reaction. See who reacted and join the conversation!"
+  action_link: "forum/reply/reaction/"
+  email_html: |
+    <h1>Your reply got a reaction!</h1>
+    <p>Head to the forum to see the latest activity on your reply.</p>
+  push_data: '{"action": "view_reaction", "message": "Your reply received a new reaction!"}'
