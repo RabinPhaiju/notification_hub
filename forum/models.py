@@ -8,6 +8,10 @@ class ForumPost(NotificationModelMixin,models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey('auth.User', on_delete=models.CASCADE,null=True)
 
+    @property
+    def action_link(self):
+        return f"/forum/{self.id}"
+
     class Meta:
         ordering = ['-created_at']
 
@@ -21,6 +25,9 @@ class ForumPostReply(NotificationModelMixin,models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True)
 
+    @property
+    def action_link(self):
+        return f"/forum/{self.post.id}"
     class Meta:
         ordering = ['-created_at']
 

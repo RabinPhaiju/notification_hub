@@ -11,6 +11,10 @@ class Offer(NotificationModelMixin,models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
 
+    @property
+    def action_link(self):
+        return f'/offer/{self.id}'
+    
     class Meta:
         ordering = ['-id']
 

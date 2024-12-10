@@ -135,7 +135,7 @@ def try_mixin(model, object_id, subject):
         record.notify(
             subject=subject,
             types=['in_app','email','push_notification'],
-            only_subs=False,
+            only_subs=True,
             notification_attribute=na
             )
 
@@ -161,9 +161,9 @@ def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
 # notify_subscribers(ForumPost, 1, ForumNotificationSubject.NEW_POST,types=['in_app','email'])
 # try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
 # notify_subscribers(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
-# try_mixin(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
+try_mixin(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
 
 # create_notification_settings(Offer)
 
 # Offer
-try_mixin(Offer, 1, OfferNotificationSubject.NEW_OFFER)
+# try_mixin(Offer, 1, OfferNotificationSubject.NEW_OFFER)

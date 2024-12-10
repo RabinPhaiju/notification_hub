@@ -21,7 +21,7 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             user_group[user][NotificationSubjectAll.ALL]['in_app'] and\
             user_group[user][subject]['in_app']:
                 na = notification_attribute or get_model_attributes(obj,subject)
-                na.action_link = 'test/action_link',
+                na.action_link = getattr(obj, 'action_link', '') if hasattr(obj, 'action_link') else ''
                 na.image_url=getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else '',
                 naa = NotificationAttributeAdapter(user=user,type='in_app',attribute=na)
                 notification_type_attributes['in_app'].append(naa)
@@ -41,6 +41,7 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
                 na = notification_attribute or get_model_attributes(obj,subject)
                 json_data = json.loads(na.push_data)
                 json_data['id'] = str(obj.id)
+                json_data['action_link'] = getattr(obj, 'action_link', '') if hasattr(obj, 'action_link') else ''
                 na.push_data=json.dumps(json_data)
                 naa = NotificationAttributeAdapter(user=user,type='push_notification',attribute=na)
                 notification_type_attributes['push_notification'].append(naa)
