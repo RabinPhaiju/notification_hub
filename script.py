@@ -4,7 +4,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'notification_hub.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from base.models import UserNotificationSetting,NotificationSubscriber,ForumNotificationSubject,NotificationSubjectAll,ForumReplyNotificationSubject,OfferNotificationSubject
+from base.models import UserNotificationSetting,NotificationSubscriber,ForumNotificationSubject,NotificationSubjectAll,ForumReplyNotificationSubject,OfferNotificationSubject,NotificationAttribute
 from django.contrib.contenttypes.models import ContentType
 from forum.models import ForumPost,ForumPostReply
 from offer.models import Offer
@@ -123,8 +123,21 @@ def notify_subscribers(model, object_id, subject, types=['in_app','email','push_
 
 def try_mixin(model, object_id, subject):
     record = model.objects.get(id=object_id)
+    na = NotificationAttribute(
+        title = 'test title',
+        body = 'test body',
+        action_link = 'https://google.com',
+        image_url = 'https://google.com',
+        email_html = '<html>hi</html>',
+        push_data = '{"action": "test", "message": "test"}',
+    )
     if record:
-        record.notify_subscribers(subject=subject,types=['in_app','email','push_notification'])
+        record.notify(
+            subject=subject,
+            types=['in_app','email','push_notification'],
+            is_all_users=False,
+            notification_attribute=na
+            )
 
 def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
     users_to_create = get_user_not_in_group_all(model)
