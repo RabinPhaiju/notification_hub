@@ -2,12 +2,12 @@ from base.models import UserNotificationSetting,NotificationSubjectAll
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from .notifications import create_notification_attributes_from_users
+from base.enums import NotifyTarget,NotificationTypes
 
 class NotificationModelMixin:
-    def notify(self, subject, types,**kwargs):
-        default_types = ['notifications_enabled']
+    def notify(self, subject, types,target,**kwargs):
+        default_types = [NotificationTypes.NOTIFICATIONS_ENABLED]
         types = list(set(default_types+types))
-        only_subs = kwargs.get('only_subs',True)
         notification_attribute = kwargs.get('notification_attribute',None)
         content_type = ContentType.objects.get_for_model(self.__class__)
         user_group = dict()
@@ -16,7 +16,7 @@ class NotificationModelMixin:
             Q(content_type=content_type),
             Q(subject__in=[subject,NotificationSubjectAll.ALL]),
         ]
-        if only_subs:
+        if target == NotifyTarget.SUBSCRIBERS:
             query.extend([
                 Q(user__notification_subscribers__content_type=content_type),
                 Q(user__notification_subscribers__generic_object_id=self.id),
@@ -27,11 +27,11 @@ class NotificationModelMixin:
             if subscriber_setting.user not in user_group:
                 user_group[subscriber_setting.user] = {
                         subscriber_setting.subject: {
-                            **{type_key: getattr(subscriber_setting, type_key) for type_key in types},
+                            **{type_key: getattr(subscriber_setting, type_key.value) for type_key in types},
                         }
                     }
             user_group[subscriber_setting.user][subscriber_setting.subject] = {
-                        **{type_key: getattr(subscriber_setting, type_key) for type_key in types},
+                        **{type_key: getattr(subscriber_setting, type_key.value) for type_key in types},
             }
 
         # Bulk create user notification settings -- but bulk create dont work signals (post_save,pre_save,post_delete)

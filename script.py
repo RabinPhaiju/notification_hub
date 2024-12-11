@@ -8,7 +8,8 @@ from base.models import UserNotificationSetting,NotificationSubscriber,ForumNoti
 from django.contrib.contenttypes.models import ContentType
 from forum.models import ForumPost,ForumPostReply
 from offer.models import Offer
-from utils import get_user_not_in_group_all,get_model_attributes
+from utils import get_user_not_in_group_all,get
+from base.enums import NotifyTarget,NotificationTypes
 
 def create_user(username, email, password):
     user = User.objects.create_user(
@@ -83,57 +84,21 @@ def update_forum_post_title(model, object_id, title):
     forumPost.title = title
     forumPost.save()
 
-def notify_subscribers(model, object_id, subject, types=['in_app','email','push_notification']):
-    default_types = ['notifications_enabled']
-    types = list(set(default_types+types))
-    record = model.objects.get(id=object_id)
-    if record:
-        user_group = get_user_group_settings(model,object_id, subject, types)
-
-        # Bulk create user notification settings -- but bulk create dont work signals (post_save,pre_save,post_delete)
-        users_not_with_group = [u for u, details in user_group.items() if not details.get(subject)]
-        settings_to_create = [
-            UserNotificationSetting( user=user, subject=subject, content_type=ContentType.objects.get_for_model(model))
-            for user in users_not_with_group
-        ]
-        UserNotificationSetting.objects.bulk_create(settings_to_create)
-
-        for user in user_group:
-            # check if user have 'subject' settings
-            if not user_group[user].get(subject,False):
-                # create user notification subject individually
-                # uns = UserNotificationSetting.objects.create(
-                #     user=user,subject=subject,content_type=ContentType.objects.get_for_model(model),
-                # )
-                user_group[user][subject.lower()] = {'notifications_enabled':True,'in_app':True,'email':True,'push_notification':True}
-            
-            if user_group[user][NotificationSubjectAll.ALL]['notifications_enabled'] and user_group[user][subject]['notifications_enabled']:
-                if 'in_app' in types and\
-                user_group[user][NotificationSubjectAll.ALL]['in_app'] and\
-                user_group[user][subject]['in_app']:
-                    print('in_app--',user,user_group[user])
-                if 'email' in types and\
-                user_group[user][NotificationSubjectAll.ALL]['email'] and\
-                user_group[user][subject]['email']:
-                    print('email--',user,user_group[user])   
-                if 'push_notification' in types and\
-                user_group[user][NotificationSubjectAll.ALL]['push_notification'] and\
-                user_group[user][subject]['push_notification']:
-                    print('push_notification--',user,user_group[user])
-
 def try_mixin(model, object_id, subject):
     record = model.objects.get(id=object_id)
     na = NotificationAttribute(
         title = 'test title',
         body = 'test body',
-        email_html = '<html>hi</html>',
+        # action_link = 'testing_link/1',
+        # image_url='test_image.png',
+        email_html = '<html>hi <a href="{{action_link}}">link</a></html>',
         push_data = '{"action": "test"}',
     )
     if record:
         record.notify(
             subject=subject,
-            types=['email','push_notification','in_app'],
-            only_subs=False,
+            types=[NotificationTypes.EMAIL,NotificationTypes.IN_APP,NotificationTypes.PUSH_NOTIFICATION],
+            target = NotifyTarget.SUBSCRIBERS,
             # notification_attribute=na
             )
 
@@ -156,9 +121,7 @@ def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
 # remove_subscriber_from_forum('ram',ForumPost,1)
 # print_notification_subscribers(ForumPost, 1)
 # update_forum_post_title(ForumPost, 1, "post 1 updated")
-# notify_subscribers(ForumPost, 1, ForumNotificationSubject.NEW_POST,types=['in_app','email'])
 try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
-# notify_subscribers(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
 # try_mixin(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
 
 # create_notification_settings(Offer)
