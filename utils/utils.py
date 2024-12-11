@@ -13,14 +13,14 @@ def get_model_attributes(obj,subject):
         return NotificationAttribute(
             title=format_message(data['title'],{'obj':obj}),
             body=format_message(data['body'],{'obj':obj}),
-            email_html = format_template(data['email_html'],{'obj':obj}),
+            email_html = get_template(data['email_html']),
             push_data = data['push_data'],
         )
     elif model == 'Offer':
         return NotificationAttribute(
             title = obj.title,
             body = obj.body,
-            email_html = format_message(obj.email_template,{'obj':obj}),
+            email_html = obj.email_template,
             push_data = json.dumps({'id':obj.id,'end':str(obj.end)}),
         )
 
@@ -43,6 +43,10 @@ def get_user_not_in_group_all(model):
 
 def format_message(template,context):
     return Template(template).render(context)
+
+def get_template(template_name):
+    env = Environment(loader=FileSystemLoader('templates'))
+    return env.loader.get_source(env, template_name)[0]
 
 def format_template(template_name,context):
     env = Environment(loader=FileSystemLoader('templates'))
