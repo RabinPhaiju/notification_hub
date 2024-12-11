@@ -20,7 +20,7 @@ def get_model_attributes(obj,subject):
         return NotificationAttribute(
             title = obj.title,
             body = obj.body,
-            email_html = obj.email_template,
+            email_html = format_message(obj.email_template,{'obj':obj}),
             push_data = json.dumps({'id':obj.id,'end':str(obj.end)}),
         )
 

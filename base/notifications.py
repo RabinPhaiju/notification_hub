@@ -1,9 +1,7 @@
 from base.models import NotificationSubjectAll,MailMessage,CloudMessage,NotificationAttributeAdapter,Notification
 import json
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
 from utils import get_model_attributes
+from django.core.mail import EmailMessage
 
 def create_notification_attributes_from_users(obj,user_group,subject,types,notification_attribute):
     notification_type_attributes = {
@@ -26,7 +24,6 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             user_group[user][subject]['in_app']:
                 naa = NotificationAttributeAdapter(user=user,type='in_app',attribute=na)
                 notification_type_attributes['in_app'].append(naa)
-                # Create notification_attribute from another method, that gathers all attributes from respective model or hardcoded.
 
             if 'email' in types and\
             user_group[user][NotificationSubjectAll.ALL]['email'] and\
@@ -70,6 +67,15 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
         )
         for una in notification_type_attributes['email']
     ]
+    # for mail in settings_to_create_mail:
+        # msg = EmailMessage(
+        #     subject=mail.subject,
+        #     body=mail.body,
+        #     from_email=mail.sender_email,
+        #     to=[mail.recipient_emails],
+        # )
+        # msg.content_subtype = "html"
+        # msg.send()
     MailMessage.objects.bulk_create(settings_to_create_mail)
 
     settings_to_create_cloud = [

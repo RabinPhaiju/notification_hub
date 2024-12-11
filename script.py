@@ -134,7 +134,7 @@ def try_mixin(model, object_id, subject):
             subject=subject,
             types=['email','push_notification','in_app'],
             only_subs=False,
-            notification_attribute=na
+            # notification_attribute=na
             )
 
 def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
