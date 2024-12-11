@@ -7,7 +7,7 @@ class NotificationModelMixin:
     def notify(self, subject, types,**kwargs):
         default_types = ['notifications_enabled']
         types = list(set(default_types+types))
-        only_subs = kwargs.get('only_subs',False)
+        only_subs = kwargs.get('only_subs',True)
         notification_attribute = kwargs.get('notification_attribute',None)
         content_type = ContentType.objects.get_for_model(self.__class__)
         user_group = dict()

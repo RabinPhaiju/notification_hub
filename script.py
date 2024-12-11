@@ -126,17 +126,15 @@ def try_mixin(model, object_id, subject):
     na = NotificationAttribute(
         title = 'test title',
         body = 'test body',
-        action_link = 'https://google.com',
-        image_url = 'https://google.com',
         email_html = '<html>hi</html>',
-        push_data = '{"action": "test", "message": "test"}',
+        push_data = '{"action": "test"}',
     )
     if record:
         record.notify(
             subject=subject,
-            types=['email'],
-            only_subs=True,
-            # notification_attribute=na
+            types=['email','push_notification','in_app'],
+            only_subs=False,
+            notification_attribute=na
             )
 
 def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):

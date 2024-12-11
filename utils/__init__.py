@@ -1,1 +1,1 @@
-from .utils import load_yaml_to_dict,get_model_attributes,get_user_not_in_group_all
+from .utils import load_yaml,get_model_attributes,get_user_not_in_group_all

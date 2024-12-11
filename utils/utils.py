@@ -9,7 +9,7 @@ from base.models import NotificationAttribute
 def get_model_attributes(obj,subject):
     model = obj.__class__.__name__
     if model == 'ForumPost' or model == 'ForumPostReply':
-        data = load_yaml_to_dict(f'data/yaml/{model}.yaml')[subject]
+        data = load_yaml(f'data/yaml/{model}.yaml')[subject]
         return NotificationAttribute(
             title=format_message(data['title'],{'obj':obj}),
             body=format_message(data['body'],{'obj':obj}),
@@ -24,7 +24,7 @@ def get_model_attributes(obj,subject):
             push_data = json.dumps({'id':obj.id,'end':str(obj.end)}),
         )
 
-def load_yaml_to_dict(file_path):
+def load_yaml(file_path):
     try:
         with open(file_path, "r") as stream:
             return yaml.safe_load(stream)
