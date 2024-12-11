@@ -17,12 +17,13 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             user_group[user][subject.lower()] = {'notifications_enabled':True,'in_app':True,'email':True,'push_notification':True}
 
         if user_group[user][NotificationSubjectAll.ALL]['notifications_enabled'] and user_group[user][subject]['notifications_enabled']:
+            na = notification_attribute or get_model_attributes(obj,subject)
+            na.action_link = getattr(obj, 'action_link', '') if hasattr(obj, 'action_link') else ''
+            na.image_url=getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else ''
+
             if 'in_app' in types and\
             user_group[user][NotificationSubjectAll.ALL]['in_app'] and\
             user_group[user][subject]['in_app']:
-                na = notification_attribute or get_model_attributes(obj,subject)
-                na.action_link = getattr(obj, 'action_link', '') if hasattr(obj, 'action_link') else ''
-                na.image_url=getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else '',
                 naa = NotificationAttributeAdapter(user=user,type='in_app',attribute=na)
                 notification_type_attributes['in_app'].append(naa)
                 # Create notification_attribute from another method, that gathers all attributes from respective model or hardcoded.
@@ -30,15 +31,13 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             if 'email' in types and\
             user_group[user][NotificationSubjectAll.ALL]['email'] and\
             user_group[user][subject]['email']:
-                na = notification_attribute or get_model_attributes(obj,subject)
-                na.email_attachment=getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else '',
+                na.email_attachment=getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else ''
                 naa = NotificationAttributeAdapter(user=user,type='email',attribute=na)
                 notification_type_attributes['email'].append(naa)
 
             if 'push_notification' in types and\
             user_group[user][NotificationSubjectAll.ALL]['push_notification'] and\
             user_group[user][subject]['push_notification']: 
-                na = notification_attribute or get_model_attributes(obj,subject)
                 json_data = json.loads(na.push_data)
                 json_data['id'] = str(obj.id)
                 json_data['action_link'] = getattr(obj, 'action_link', '') if hasattr(obj, 'action_link') else ''
