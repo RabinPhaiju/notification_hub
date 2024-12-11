@@ -1,6 +1,6 @@
 import yaml
 import json
-from django.apps import apps
+from jinja2 import Template,Environment,FileSystemLoader
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -11,9 +11,9 @@ def get_model_attributes(obj,subject):
     if model == 'ForumPost' or model == 'ForumPostReply':
         data = load_yaml_to_dict(f'data/yaml/{model}.yaml')[subject]
         return NotificationAttribute(
-            title = data['title'],
-            body = data['body'],
-            email_html = data['email_html'],
+            title=format_message(data['title'],{'obj':obj}),
+            body=format_message(data['body'],{'obj':obj}),
+            email_html = format_template(model,data['email_html'],{'obj':obj}),
             push_data = data['push_data'],
         )
     elif model == 'Offer':
@@ -40,3 +40,11 @@ def get_user_not_in_group_all(model):
     return User.objects.filter(
             ~Q(notification_settings__content_type=content_type),
         )
+
+def format_message(template,context):
+    return Template(template).render(context)
+
+def format_template(model,context):
+    env = Environment(loader=FileSystemLoader('templates'))
+    template = env.get_template(f'{model}.jinja')
+    return template.render(context)

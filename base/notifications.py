@@ -31,7 +31,7 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             if 'email' in types and\
             user_group[user][NotificationSubjectAll.ALL]['email'] and\
             user_group[user][subject]['email']:
-                na.email_attachment=getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else ''
+                na.email_attachment=na.image_url
                 naa = NotificationAttributeAdapter(user=user,type='email',attribute=na)
                 notification_type_attributes['email'].append(naa)
 
@@ -40,7 +40,8 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             user_group[user][subject]['push_notification']: 
                 json_data = json.loads(na.push_data)
                 json_data['id'] = str(obj.id)
-                json_data['action_link'] = getattr(obj, 'action_link', '') if hasattr(obj, 'action_link') else ''
+                json_data['message'] = na.body
+                json_data['action_link'] = na.action_link
                 na.push_data=json.dumps(json_data)
                 naa = NotificationAttributeAdapter(user=user,type='push_notification',attribute=na)
                 notification_type_attributes['push_notification'].append(naa)

@@ -58,9 +58,9 @@
             <h1>Congratulations, Your Post is Live!</h1>
         </div>
         <div class="email-body">
-            <h1>{{ title }}</h1>
-            <p>{{ body }}</p>
-            <a href="{{ action_link }}" class="btn">View Your Post</a>
+            <h1>{{ obj.title }}</h1>
+            <p>"{{ obj.title }} is now live!"</p>
+            <a href="{{ obj.action_link }}" class="btn">View Your Post</a>
         </div>
         <div class="email-footer">
             <p>You are receiving this email because you created a post on our forum. If you have any questions, contact support.</p>

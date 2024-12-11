@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'offer.apps.OfferConfig',
 ]
 
+INSTALLED_APPS += ('django_jinja',)
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -56,6 +58,14 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'notification_hub.urls'
 
 TEMPLATES = [
+    {
+        "BACKEND": "django_jinja.jinja2.Jinja2",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "environment": "notification_hub.jinja2.environment",
+        }
+    },
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],

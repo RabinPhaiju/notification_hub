@@ -1,16 +1,12 @@
 new_post:
   title: "Your post has been published!"
-  body: "Your new post is now live on the forum. Check it out."
-  action_link: "forum/"
-  email_html: |
-    <h1>Your post is live!</h1>
-    <p>Check it out on the forum now.</p>
-  push_data: '{"action": "view_post", "message": "Your latest post is live!"}'
+  body: "{{ obj.title }} is now live! Check it out on the forum."
+  email_html: ForumPost.jinja
+  push_data: '{"action": "view_post"}'
 post_reaction:
-  title: "Someone reacted to your post!"
-  body: "Your post has received a new reaction. Check it out on the forum."
-  action_link: "forum/reactions/"
+  title: "{{ obj.title }} has a new reaction!"
+  body: "{{ obj.title }} has received a new reaction. Check it out on the forum."
   email_html: |
     <h1>Your post has a new reaction!</h1>
     <p>Visit the forum to see who reacted.</p>
-  push_data: '{"action": "view_reaction", "message": "Your post has a new reaction!"}'
+  push_data: '{"action": "view_reaction"}'
