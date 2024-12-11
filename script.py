@@ -135,7 +135,7 @@ def try_mixin(model, object_id, subject):
         record.notify(
             subject=subject,
             types=['email'],
-            only_subs=False,
+            only_subs=True,
             # notification_attribute=na
             )
 

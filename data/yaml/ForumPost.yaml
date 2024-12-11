@@ -6,7 +6,5 @@ new_post:
 post_reaction:
   title: "{{ obj.title }} has a new reaction!"
   body: "{{ obj.title }} has received a new reaction. Check it out on the forum."
-  email_html: |
-    <h1>Your post has a new reaction!</h1>
-    <p>Visit the forum to see who reacted.</p>
+  email_html: ForumPostReaction.jinja
   push_data: '{"action": "view_reaction"}'

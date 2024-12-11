@@ -13,7 +13,7 @@ def get_model_attributes(obj,subject):
         return NotificationAttribute(
             title=format_message(data['title'],{'obj':obj}),
             body=format_message(data['body'],{'obj':obj}),
-            email_html = format_template(model,data['email_html'],{'obj':obj}),
+            email_html = format_template(data['email_html'],{'obj':obj}),
             push_data = data['push_data'],
         )
     elif model == 'Offer':
@@ -44,7 +44,7 @@ def get_user_not_in_group_all(model):
 def format_message(template,context):
     return Template(template).render(context)
 
-def format_template(model,context):
+def format_template(template_name,context):
     env = Environment(loader=FileSystemLoader('templates'))
-    template = env.get_template(f'{model}.jinja')
+    template = env.get_template(template_name)
     return template.render(context)
