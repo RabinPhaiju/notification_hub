@@ -8,7 +8,7 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
     notification_type_attributes = {
         NotificationTypes.IN_APP:[],
         NotificationTypes.EMAIL:[],
-        NotificationTypes.PUSH_NOTIFICATION:[]
+        NotificationTypes.PUSH:[]
     }
 
     na = notification_attribute or get_model_attributes(obj,subject)
@@ -24,7 +24,7 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
                 NotificationTypes.NOTIFICATIONS_ENABLED:True,
                 NotificationTypes.IN_APP:True,
                 NotificationTypes.EMAIL:True,
-                NotificationTypes.PUSH_NOTIFICATION:True
+                NotificationTypes.PUSH:True
                 }
 
         if user_group[user][NotificationSubjectAll.ALL][NotificationTypes.NOTIFICATIONS_ENABLED] and user_group[user][subject][NotificationTypes.NOTIFICATIONS_ENABLED]:
@@ -42,17 +42,17 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
                 naa = NotificationAttributeAdapter(user=user,type=NotificationTypes.EMAIL,attribute=na)
                 notification_type_attributes[NotificationTypes.EMAIL].append(naa)
 
-            if NotificationTypes.PUSH_NOTIFICATION in types and\
-            user_group[user][NotificationSubjectAll.ALL][NotificationTypes.PUSH_NOTIFICATION] and\
-            user_group[user][subject][NotificationTypes.PUSH_NOTIFICATION]: 
+            if NotificationTypes.PUSH in types and\
+            user_group[user][NotificationSubjectAll.ALL][NotificationTypes.PUSH] and\
+            user_group[user][subject][NotificationTypes.PUSH]: 
                 json_data = json.loads(na.push_data or '{}') # can be moved above loop
                 json_data['id'] = str(obj.id)
                 json_data['title'] = na.title
                 json_data['message'] = na.body
                 json_data['action_link'] = na.action_link
                 na.push_data=json.dumps(json_data)
-                naa = NotificationAttributeAdapter(user=user,type=NotificationTypes.PUSH_NOTIFICATION,attribute=na)
-                notification_type_attributes[NotificationTypes.PUSH_NOTIFICATION].append(naa)
+                naa = NotificationAttributeAdapter(user=user,type=NotificationTypes.PUSH,attribute=na)
+                notification_type_attributes[NotificationTypes.PUSH].append(naa)
     
     # Sent Notification
     settings_to_create_in_app = [
@@ -87,6 +87,6 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             body=una.attribute.body,
             data=una.attribute.push_data
         )
-        for una in notification_type_attributes[NotificationTypes.PUSH_NOTIFICATION]
+        for una in notification_type_attributes[NotificationTypes.PUSH]
     ]
     CloudMessage.objects.bulk_create(settings_to_create_cloud)

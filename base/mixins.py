@@ -34,7 +34,6 @@ class NotificationModelMixin:
                         **{type_key: getattr(subscriber_setting, type_key.value) for type_key in types},
             }
 
-        # Bulk create user notification settings -- but bulk create dont work signals (post_save,pre_save,post_delete)
         users_not_with_group = [u for u, details in user_group.items() if not details.get(subject)]
         if users_not_with_group:
             settings_to_create = [
@@ -42,6 +41,7 @@ class NotificationModelMixin:
                 for user in users_not_with_group
             ]
             instances = UserNotificationSetting.objects.bulk_create(settings_to_create)
+            # Bulk create user notification settings -- but bulk create dont work signals (post_save,pre_save,post_delete)
             # Manually send the post_save signal
             # for instance in instances:
                 # post_save.send(sender=UserNotificationSetting, instance=instance, created=True)

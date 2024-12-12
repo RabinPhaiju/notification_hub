@@ -39,7 +39,7 @@ class UserNotificationSetting(BaseModel):
 
     in_app = models.BooleanField(default=True)
     email = models.BooleanField(default=True)
-    push_notification = models.BooleanField(default=True)
+    push = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ('user', 'content_type', 'subject')

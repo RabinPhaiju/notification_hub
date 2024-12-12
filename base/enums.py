@@ -10,5 +10,5 @@ class NotifyTarget(Enum):
 class NotificationTypes(Enum):
     NOTIFICATIONS_ENABLED = 'notifications_enabled'
     EMAIL = 'email'
-    PUSH_NOTIFICATION = 'push_notification'
+    PUSH = 'push'
     IN_APP = 'in_app'

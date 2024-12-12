@@ -31,8 +31,7 @@ def print_user_notification_settings(username):
         if settings.exists():
             for setting in settings:
                 print(f'model: {setting.content_type.model}, subject: {setting.subject}, enabled: {setting.notifications_enabled}')
-                print(f'email: {setting.email}, in_app: {setting.in_app}, push_notification: {setting.push_notification}')
-                print('---------------')
+                print(f'email: {setting.email}, in_app: {setting.in_app}, push: {setting.push}')
         else:
             print("No settings found.")
     else:
@@ -97,8 +96,8 @@ def try_mixin(model, object_id, subject):
     if record:
         record.notify(
             subject=subject,
-            types=[NotificationTypes.EMAIL,NotificationTypes.IN_APP,NotificationTypes.PUSH_NOTIFICATION],
-            target = NotifyTarget.SUBSCRIBERS,
+            types=[NotificationTypes.EMAIL,NotificationTypes.IN_APP,NotificationTypes.PUSH],
+            target = NotifyTarget.NEWSLETTER_EMAIL,
             # notification_attribute=na
             )
 
