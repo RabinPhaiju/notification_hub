@@ -35,6 +35,7 @@ def get_model_attributes(obj,subject):
     return NotificationAttribute(
         title=data['title'],
         body=data['body'],
+        image_url=data.get('image_url',None),
         email_template = email_template or get_template(email_template_path),
         push_data = data.get('push_data',None),
     )

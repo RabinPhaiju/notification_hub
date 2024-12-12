@@ -160,5 +160,5 @@ EMAIL_USE_TLS = False     # No TLS for development
 EMAIL_USE_SSL = False     # No SSL for development
 EMAIL_HOST_USER = ''      # No authentication needed
 EMAIL_HOST_PASSWORD = ''  # No authentication needed
-DEFAULT_FROM_EMAIL = 'webmaster@localhost'  # Default sender email
+DEFAULT_FROM_EMAIL = 'webmaster@localhost.com'  # Default sender email
 
