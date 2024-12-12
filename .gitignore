@@ -2,3 +2,5 @@
 /*/__pycache__
 /*/*/__pycache__
 test_image.png
+db.sqlite3
+.DS_Store

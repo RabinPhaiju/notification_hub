@@ -83,14 +83,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'notification_hub.wsgi.application'
 
-# Notification Model Template Paths
-NOTIFICATION_MODEL_TEMPLATE_PATHS = {
-    'email': {
-        'forum.ForumPost': 'email/ForumPost.html',
-        'forum.ForumPostReply': 'email/ForumPostReply.html',
-        'forum.Test': 'email/ForumPost.html',
-        'offer.Offer': 'email/Offer.html',
-    }
+# Notification Model Data
+NOTIFICATION_MODEL_DATA = {
+    'forum.ForumPost':[
+        'ForumPost.yaml'
+    ],
+    'forum.ForumPostReply':[
+        'ForumPostReply.yaml'
+    ],
+    'test.Test':[
+        'ForumPost.yaml',
+        'ForumPostReply.yaml'
+    ],
+    'offer.Offer':[
+        'Offer.yaml'
+    ]
 }
 
 # Database

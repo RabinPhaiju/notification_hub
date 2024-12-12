@@ -12,6 +12,8 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
     }
 
     na = notification_attribute or get_model_attributes(obj,subject)
+    na.title = format_message(na.title,{'obj':obj})
+    na.body = format_message(na.body,{'obj':obj})
     na.action_link = na.action_link or getattr(obj, 'action_link', '') if hasattr(obj, 'action_link') else ''
     na.image_url=na.image_url or getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else ''
 
@@ -35,7 +37,7 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             if NotificationTypes.EMAIL in types and\
             user_group[user][NotificationSubjectAll.ALL][NotificationTypes.EMAIL] and\
             user_group[user][subject][NotificationTypes.EMAIL]:
-                na.email_html = format_message(na.email_html,{'obj':obj,'user':user,'action_link':na.action_link})
+                na.email_template = format_message(na.email_template,{'obj':obj,'user':user,'action_link':na.action_link})
                 na.email_attachment_url=na.image_url
                 naa = NotificationAttributeAdapter(user=user,type=NotificationTypes.EMAIL,attribute=na)
                 notification_type_attributes[NotificationTypes.EMAIL].append(naa)
@@ -43,7 +45,7 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             if NotificationTypes.PUSH_NOTIFICATION in types and\
             user_group[user][NotificationSubjectAll.ALL][NotificationTypes.PUSH_NOTIFICATION] and\
             user_group[user][subject][NotificationTypes.PUSH_NOTIFICATION]: 
-                json_data = json.loads(na.push_data or '{}')
+                json_data = json.loads(na.push_data or '{}') # can be moved above loop
                 json_data['id'] = str(obj.id)
                 json_data['message'] = na.body
                 json_data['action_link'] = na.action_link
@@ -68,7 +70,7 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
     settings_to_create_mail = [
         MailMessage(
             subject=una.attribute.title,
-            body=una.attribute.email_html if una.attribute.email_html !='' else una.attribute.body,
+            body=una.attribute.email_template if una.attribute.email_template !='' else una.attribute.body,
             attachment_url=una.attribute.email_attachment_url,
             sender_email='app@example.com',
             recipient_emails=','.join([una.user.email]),

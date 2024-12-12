@@ -1,11 +1,13 @@
 new_offer:
   title: "Offer {{ obj.title }} is now live!"
   body: "{{ obj.body }}"
-  push_data: '{"end": "{{ obj.end }}"}'
+  email_template_path: "email/Offer.html"
   image_url: "{{ obj.image_url }}"
+  push_data: '{"end": "{{ obj.end }}"}'
   
 offer_reminder:
   title: "Offer {{ obj.title }} is ending soon!"
   body: "{{ obj.body }}"
-  push_data: '{"end": "{{ obj.end }}"}'
+  email_template_path: "email/Offer.html"
   image_url: "{{ obj.image_url }}"
+  push_data: '{"end": "{{ obj.end }}"}'
