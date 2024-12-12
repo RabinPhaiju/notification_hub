@@ -43,7 +43,7 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
             if NotificationTypes.PUSH_NOTIFICATION in types and\
             user_group[user][NotificationSubjectAll.ALL][NotificationTypes.PUSH_NOTIFICATION] and\
             user_group[user][subject][NotificationTypes.PUSH_NOTIFICATION]: 
-                json_data = json.loads(na.push_data)
+                json_data = json.loads(na.push_data or '{}')
                 json_data['id'] = str(obj.id)
                 json_data['message'] = na.body
                 json_data['action_link'] = na.action_link

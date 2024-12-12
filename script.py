@@ -8,7 +8,7 @@ from base.models import UserNotificationSetting,NotificationSubscriber,ForumNoti
 from django.contrib.contenttypes.models import ContentType
 from forum.models import ForumPost,ForumPostReply
 from offer.models import Offer
-from utils import get_user_not_in_group_all,get
+from utils import get_user_not_in_group_all
 from base.enums import NotifyTarget,NotificationTypes
 
 def create_user(username, email, password):
@@ -92,14 +92,14 @@ def try_mixin(model, object_id, subject):
         # action_link = 'testing_link/1',
         # image_url='test_image.png',
         email_html = '<html>hi <a href="{{action_link}}">link</a></html>',
-        push_data = '{"action": "test"}',
+        # push_data = '{"action": "test"}',
     )
     if record:
         record.notify(
             subject=subject,
             types=[NotificationTypes.EMAIL,NotificationTypes.IN_APP,NotificationTypes.PUSH_NOTIFICATION],
-            target = NotifyTarget.SUBSCRIBERS,
-            # notification_attribute=na
+            target = NotifyTarget.ALL,
+            notification_attribute=na
             )
 
 def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
@@ -121,10 +121,10 @@ def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
 # remove_subscriber_from_forum('ram',ForumPost,1)
 # print_notification_subscribers(ForumPost, 1)
 # update_forum_post_title(ForumPost, 1, "post 1 updated")
-try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
+# try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
 # try_mixin(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
 
 # create_notification_settings(Offer)
 
 # Offer
-# try_mixin(Offer, 1, OfferNotificationSubject.NEW_OFFER)
+try_mixin(Offer, 1, OfferNotificationSubject.NEW_OFFER)

@@ -1,11 +1,9 @@
 new_reply:
   title: "{{obj.created_by.username}} replied to {{obj.post.title}}"
   body: "{{obj.created_by.username}} replied to post: {{obj.post.title}}"
-  email_html: ForumPostReply.jinja
   push_data: '{"action": "view_post"}'
 
 reply_reaction:
   title: "{{obj.created_by.username}} reacted to  {{obj.post.title}}"
   body: "{{obj.created_by.username}} reacted to post: {{obj.post.title}}"
-  email_html: ForumPostReplyReaction.jinja
   push_data: '{"action": "view_reaction"}'

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Your Post is Live!</title>
+    <title>{{obj.title}}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,16 +55,16 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <h1>Congratulations, Your Post is Live!</h1>
+            <h1>{{obj.title}}</h1>
         </div>
         <div class="email-body">
-            <h1>{{ obj.title }}</h1>
-            <p>"{{ obj.title }} is now live!"</p>
-            <a href="{{ obj.action_link }}" class="btn">View Your Post</a>
+            <p>"{{ obj.body }}"</p>
+            <a href="{{ action_link }}" class="btn">View Offer</a>
         </div>
         <div class="email-footer">
-            <p>You are receiving this email because you created a post on our forum. If you have any questions, contact support.</p>
+            <p>You are receiving this email because you are settings enabled .If you have any questions, contact support.</p>
         </div>
     </div>
 </body>
+
 </html>

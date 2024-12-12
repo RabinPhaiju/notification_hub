@@ -83,6 +83,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'notification_hub.wsgi.application'
 
+# Notification Model Template Paths
+NOTIFICATION_MODEL_TEMPLATE_PATHS = {
+    'email': {
+        'forum.ForumPost': 'email/ForumPost.html',
+        'forum.ForumPostReply': 'email/ForumPostReply.html',
+        'forum.Test': 'email/ForumPost.html',
+        'offer.Offer': 'email/Offer.html',
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
