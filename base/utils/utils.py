@@ -3,7 +3,7 @@ from jinja2 import Template,Environment,FileSystemLoader
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from base.models import NotificationAttribute
+from ..models import NotificationAttribute
 from django.conf import settings
 
 def get_model_attributes(obj,subject):

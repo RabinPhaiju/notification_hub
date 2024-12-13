@@ -1,8 +1,8 @@
-from base.models import UserNotificationSetting,NotificationSubjectAll
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from .models import UserNotificationSetting,NotificationSubjectAll
 from .helpers import create_notification_attributes_from_users
-from base.enums import NotifyTarget,NotificationTypes
+from .enums import NotifyTarget,NotificationTypes
 
 class NotificationModelMixin:
     def notify(self, subject, types,target,**kwargs):

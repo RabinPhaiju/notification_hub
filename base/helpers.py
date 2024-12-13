@@ -1,8 +1,8 @@
-from base.models import NotificationSubjectAll,MailMessage,CloudMessage,NotificationAttributeAdapter,Notification
+from .models import NotificationSubjectAll,MailMessage,CloudMessage,NotificationAttributeAdapter,Notification
 import json
-from utils import get_model_attributes,format_message
+from .utils import get_model_attributes,format_message
 from django.conf import settings
-from base.enums import NotificationTypes
+from .enums import NotificationTypes
 
 def create_notification_attributes_from_users(obj,user_group,subject,types,notification_attribute):
     notification_type_attributes = {

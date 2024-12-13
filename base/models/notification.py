@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from dataclasses import dataclass
 from typing import Optional
 from django.db import models
@@ -6,7 +5,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from .subject_choices import NotificationSubjectChoices
 
-User = get_user_model()
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
