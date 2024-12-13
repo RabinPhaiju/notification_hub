@@ -1,6 +1,4 @@
-subject_choices = [
-    ("all", "All")
-]
+subject_choices = []
 
 def register_subject_choices(choices):
     if isinstance(choices, list):
