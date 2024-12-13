@@ -1,6 +1,6 @@
 from .notification import Notification,NotificationSubscriber,UserNotificationSetting,NotificationAttribute,NotificationAttributeAdapter
 
-from .subject_choices import NotificationSubjectChoices,ForumNotificationSubject,AuthNotificationSubject,NotificationSubjectAll,ForumReplyNotificationSubject,OfferNotificationSubject
+from .subject_choices import NotificationSubjectAll
 
 from .mail_message import MailMessage
 

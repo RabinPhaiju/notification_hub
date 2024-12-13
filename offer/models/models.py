@@ -1,9 +1,9 @@
 from django.db import models
 from base.mixins import NotificationModelMixin
-from base.models import NotificationSubjectChoices
+from base.registry import get_subject_choices
 
 class Offer(NotificationModelMixin,models.Model):
-    subject = models.CharField(max_length=20,choices=NotificationSubjectChoices.choices,null=True,blank=True)
+    subject = models.CharField(max_length=20,choices=get_subject_choices(),null=True,blank=True)
     title = models.CharField(max_length=200)
     body = models.TextField()
     image_url = models.URLField(blank=True, null=True)

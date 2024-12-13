@@ -1,9 +1,9 @@
 from django.db.models.signals import post_save,pre_save,post_delete
 from django.dispatch import receiver
-from forum.models import ForumPostReply,ForumPost
 from django.db.models import F
 from django.contrib.contenttypes.models import ContentType
 from base.models import NotificationSubscriber
+from forum.models import ForumPostReply,ForumPost
 
 @receiver(post_save, sender=ForumPostReply)
 def forum_post_reply_created(sender, instance, created, **kwargs):

@@ -4,7 +4,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'notification_hub.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from base.models import UserNotificationSetting,NotificationSubscriber,ForumNotificationSubject,NotificationSubjectAll,ForumReplyNotificationSubject,OfferNotificationSubject,NotificationAttribute
+from base.models import UserNotificationSetting,NotificationSubscriber,NotificationSubjectAll,NotificationAttribute
 from django.contrib.contenttypes.models import ContentType
 from forum.models import ForumPost,ForumPostReply
 from offer.models import Offer
@@ -97,7 +97,7 @@ def try_mixin(model, object_id, subject):
         record.notify(
             subject=subject,
             types=[NotificationTypes.EMAIL, NotificationTypes.IN_APP, NotificationTypes.PUSH],
-            target = NotifyTarget.SUBSCRIBERS,
+            target = NotifyTarget.NEWSLETTER_EMAIL,
             # notification_attribute=na
             )
 

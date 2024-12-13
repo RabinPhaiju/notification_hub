@@ -3,8 +3,7 @@ from typing import Optional
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from .subject_choices import NotificationSubjectChoices
-
+from ..registry import get_subject_choices
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -18,7 +17,6 @@ class Notification(BaseModel):
     title = models.CharField(max_length=100)
     description = models.TextField()
     image_url = models.URLField(blank=True, null=True)
-    category = models.CharField(max_length=20,choices=NotificationSubjectChoices.choices) # rename to subject
     action_link = models.URLField(blank=True, null=True)
     slug = models.SlugField(max_length=100, unique=False, null=True, blank=True)
 
@@ -31,7 +29,7 @@ class Notification(BaseModel):
 class UserNotificationSetting(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='notification_settings')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    subject = models.CharField(max_length=50, choices=NotificationSubjectChoices.choices, null=True, blank=True)
+    subject = models.CharField(max_length=50, choices=get_subject_choices(), null=True, blank=True)
 
     notifications_enabled = models.BooleanField(default=True)
 
