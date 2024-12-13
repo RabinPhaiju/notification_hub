@@ -1,7 +1,7 @@
 from base.models import UserNotificationSetting,NotificationSubjectAll
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from .notifications import create_notification_attributes_from_users
+from .helpers import create_notification_attributes_from_users
 from base.enums import NotifyTarget,NotificationTypes
 
 class NotificationModelMixin:

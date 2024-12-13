@@ -55,38 +55,41 @@ def create_notification_attributes_from_users(obj,user_group,subject,types,notif
                 notification_type_attributes[NotificationTypes.PUSH].append(naa)
     
     # Sent Notification
-    settings_to_create_in_app = [
-        Notification(
-            user=una.user,
-            title=una.attribute.title,
-            description=una.attribute.body,
-            category=subject,
-            action_link=una.attribute.action_link,
-            image_url=una.attribute.image_url
-            )
-        for una in notification_type_attributes[NotificationTypes.IN_APP]
-    ]
-    Notification.objects.bulk_create(settings_to_create_in_app)
+    if notification_type_attributes[NotificationTypes.IN_APP]:
+        settings_to_create_in_app = [
+            Notification(
+                user=una.user,
+                title=una.attribute.title,
+                description=una.attribute.body,
+                category=subject,
+                action_link=una.attribute.action_link,
+                image_url=una.attribute.image_url
+                )
+            for una in notification_type_attributes[NotificationTypes.IN_APP]
+        ]
+        Notification.objects.bulk_create(settings_to_create_in_app)
     
-    settings_to_create_mail = [
-        MailMessage(
-            subject=una.attribute.title,
-            body=una.attribute.email_template if una.attribute.email_template !='' else una.attribute.body,
-            attachment_url=una.attribute.email_attachment_url,
-            sender_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_emails=','.join([una.user.email]),
-        )
-        for una in notification_type_attributes[NotificationTypes.EMAIL]
-    ]
-    MailMessage.objects.bulk_create(settings_to_create_mail)
+    if notification_type_attributes[NotificationTypes.EMAIL]:
+        settings_to_create_mail = [
+            MailMessage(
+                subject=una.attribute.title,
+                body=una.attribute.email_template if una.attribute.email_template !='' else una.attribute.body,
+                attachment_url=una.attribute.email_attachment_url,
+                sender_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_emails=','.join([una.user.email]),
+            )
+            for una in notification_type_attributes[NotificationTypes.EMAIL]
+        ]
+        MailMessage.objects.bulk_create(settings_to_create_mail)
 
-    settings_to_create_cloud = [
-        CloudMessage(
-            user=una.user,
-            title=una.attribute.title,
-            body=una.attribute.body,
-            data=una.attribute.push_data
-        )
-        for una in notification_type_attributes[NotificationTypes.PUSH]
-    ]
-    CloudMessage.objects.bulk_create(settings_to_create_cloud)
+    if notification_type_attributes[NotificationTypes.PUSH]:
+        settings_to_create_cloud = [
+            CloudMessage(
+                user=una.user,
+                title=una.attribute.title,
+                body=una.attribute.body,
+                data=una.attribute.push_data
+            )
+            for una in notification_type_attributes[NotificationTypes.PUSH]
+        ]
+        CloudMessage.objects.bulk_create(settings_to_create_cloud)
