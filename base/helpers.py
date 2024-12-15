@@ -1,8 +1,6 @@
-from .models import NotificationSubjectAll,MailMessage,CloudMessage,NotificationAttributeAdapter,Notification
-import json
+from .models import MailMessage,CloudMessage,NotificationAttributeAdapter,Notification
 from .utils import get_model_attributes,format_message
 from django.conf import settings
-from .enums import NotificationTypes
 
 def format_notification_attribute(obj,subject,notification_attribute):
     na = notification_attribute or get_model_attributes(obj,subject)
@@ -40,17 +38,50 @@ def sent_in_app_notification(attributes):
         ]
         Notification.objects.bulk_create(settings_to_create_in_app)
 
-def sent_email_notification(attributes):
-    if attributes:
-        settings_to_create_mail = [
+def sent_email_notification(attributes, emails=None, is_bulk=True):
+    if emails and not isinstance(emails, list):
+        raise ValueError("Emails must be a list of email addresses.")
+    
+    if emails: # Create notifications for multiple emails with shared attributes
+        if not isinstance(attributes, NotificationAttributeAdapter):
+            raise ValueError("For email list, notification_attributes must be a single dict.")
+        
+        mail_notifications = [
             MailMessage(
-                subject=una.attribute.title,
-                body=una.attribute.email_template if una.attribute.email_template !='' else una.attribute.body,
-                attachment_url=una.attribute.email_attachment_url,
-                sender_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_emails=','.join([una.user_email]),
-            )
-            for una in attributes
+                subject=attributes.title,
+                body=attributes.email_template if attributes.email_template !='' else attributes.body,
+                attachment_url=attributes.email_attachment_url,
+                sender_email=settings.DEFAULT_FROM_EMAIL, 
+                recipient_emails=email
+                )
+            for email in emails
         ]
-        MailMessage.objects.bulk_create(settings_to_create_mail)
+        MailMessage.objects.bulk_create(mail_notifications)
 
+    elif is_bulk: # Handle bulk creation with list of attributes
+        if not isinstance(attributes, list):
+            raise ValueError("For bulk creation, notification_attributes must be a list of dicts.")
+        
+        mail_notifications = [
+            MailMessage(
+                subject=naa.attribute.title,
+                body=naa.attribute.email_template if naa.attribute.email_template !='' else naa.attribute.body,
+                attachment_url=naa.attribute.email_attachment_url or naa.attribute.image_url,
+                sender_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_emails=','.join([naa.user_email]),
+            ) 
+            for naa in attributes
+        ]
+        MailMessage.objects.bulk_create(mail_notifications)
+
+    else: # Handle individual email case
+        if not isinstance(attributes, dict):
+            raise ValueError("For single email, notification_attributes must be a dict.")
+        
+        MailMessage.objects.create(
+            subject=attributes['subject'],
+            body=attributes['body'],
+            attachment_url=attributes['attachment_url'],
+            sender_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_emails=','.join(attributes['email']),
+        )

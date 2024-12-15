@@ -1,11 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.conf import settings
 import json
-from .models import UserNotificationSetting,NotificationSubjectAll,NotificationAttributeAdapter,Notification,MailMessage,CloudMessage
+from .models import UserNotificationSetting,NotificationSubjectAll,NotificationAttributeAdapter
 from .helpers import sent_email_notification,sent_in_app_notification,sent_push_notification,format_notification_attribute
 from .enums import NotifyTarget,NotificationTypes
-from .utils import get_model_attributes,format_message
+from .utils import format_message
 
 class NotificationModelMixin:
     def notify(self, subject, types,target,notification_attribute=None):
