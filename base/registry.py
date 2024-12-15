@@ -10,7 +10,6 @@ def get_subject_choices(filter_by=None):
     if filter_by == 'ALL' or filter_by is None:
         return subject_choices
     elif filter_by:
-        # Assuming `filter_by` matches the first element of the tuple
         return [choice for choice in subject_choices if choice[0] == filter_by]
     else:
         raise ValueError("Invalid filter provided.")

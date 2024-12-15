@@ -113,7 +113,7 @@ def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
         UserNotificationSetting.objects.bulk_create(notification_to_create)
  
 # commands:
-create_user('shyam11', 'shyam11@example.com', 'password')
+# create_user('shyam11', 'shyam11@example.com', 'password')
 # print_users()
 # print_user_notification_settings('ram')
 # add_subscriber_to_forum('ram',ForumPost,1)
@@ -124,4 +124,4 @@ create_user('shyam11', 'shyam11@example.com', 'password')
 
 # try_mixin(ForumPost, 1, ForumNotificationSubject.NEW_POST)
 # try_mixin(ForumPostReply, 2, ForumReplyNotificationSubject.NEW_REPLY)
-# try_mixin(Offer, 1, OfferNotificationSubject.NEW_OFFER)
+try_mixin(Offer, 1, OfferNotificationSubject.NEW_OFFER)
