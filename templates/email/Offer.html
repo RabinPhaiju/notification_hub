@@ -55,7 +55,7 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <h1>Dear, {{ user.username if user else user_email }}</h1>
+            <h1>Dear, {{ user.email if user.is_anonymous else user.username }}</h1>
             <h1>{{obj.title}}</h1>
         </div>
         <div class="email-body">

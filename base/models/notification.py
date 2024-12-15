@@ -89,8 +89,7 @@ class NotificationAttribute:
 class NotificationAttributeAdapter:
     attribute: object = None
     user: object = None
-    user_email: object = None
     type: object = None
 
     def __str__(self):
-        return f"NotificationAttribute for {self.user or self.user_email} via {self.notification_type}"
+        return f"NotificationAttribute for {self.user} via {self.notification_type}"
