@@ -59,7 +59,7 @@ class NotificationAttribute:
     action_link: Optional[str] = None
     image_url: Optional[str] = None
     email_template: Optional[str] = None
-    email_attachment_url: Optional[str] = None
+    email_attachment_id: Optional[str] = None
     push_data: Optional[str] = None
 
     def as_dict(self, type):
@@ -68,7 +68,7 @@ class NotificationAttribute:
                 'title': self.title,
                 'body': self.body,
                 'email_template': self.email_template,
-                'email_attachment_url': self.email_attachment_url,
+                'email_attachment_id': self.email_attachment_id,
             }
         elif type == 'push':
             return {
