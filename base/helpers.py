@@ -1,7 +1,9 @@
 from .models import MailMessage,CloudMessage,NotificationAttributeAdapter,Notification,NotificationSubjectAll
 import json
+from copy import deepcopy
 from .utils import get_model_attributes,format_message
 from django.conf import settings
+from django.core.mail import EmailMessage
 from django.contrib.auth.models import AnonymousUser
 from .enums import NotificationTypes
 
@@ -56,12 +58,14 @@ def get_notification_type_attributes_email(user_emails,obj,na):
         NotificationTypes.EMAIL:email_attributes
     }
 
-def get_email_notification_attributes(obj,user,na):
+def get_email_notification_attributes(obj,user,_na):
+    na = deepcopy(_na)
     na.email_template = format_message(na.email_template,{'obj':obj,'user':user,'action_link':na.action_link})
-    na.email_attachment_url=na.email_attachment_url or getattr(obj, 'email_attachment_url', '')
+    na.email_attachment_id=na.email_attachment_id or getattr(obj, 'email_attachment_id', '')
     return NotificationAttributeAdapter(user=user,type=NotificationTypes.EMAIL,attribute=na)
 
-def get_push_notification_attributes(obj,user,na):
+def get_push_notification_attributes(obj,user,_na):
+    na = deepcopy(_na)
     json_data = json.loads(na.push_data or '{}') # can be moved to format_notification_attribute
     json_data['id'] = str(obj.id)
     json_data['title'] = na.title
@@ -98,16 +102,26 @@ def sent_in_app(notification_attributes):
         ]
         Notification.objects.bulk_create(settings_to_create_in_app)
 
-def sent_email(notification_attributes):
-    mail_notifications = [
-        MailMessage(
-            subject=naa.attribute.title,
-            body=naa.attribute.email_template if naa.attribute.email_template !='' else naa.attribute.body,
-            attachment_url=naa.attribute.email_attachment_url,
-            sender_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_emails=','.join([naa.user.email]),
-        ) 
-        for naa in notification_attributes
-    ]
-    MailMessage.objects.bulk_create(mail_notifications)
 
+def sent_mail(email_messages):
+    if isinstance(email_messages, EmailMessage):
+        email_messages = [email_messages]
+    elif not isinstance(email_messages, list):
+        raise ValueError("email_messages must be a list or a single EmailMessage instance.")
+    
+    # Send the emails
+    # for email_message in email_messages:
+        # email_message.send()
+
+    mail_messages = [
+        MailMessage(
+            subject=email_message.subject,
+            body=email_message.body,
+            attachment_url='',
+            sender_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_emails=','.join(email_message.recipients())
+        ) 
+        for email_message in email_messages
+    ]
+    MailMessage.objects.bulk_create(mail_messages)
+    

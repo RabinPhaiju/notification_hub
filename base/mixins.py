@@ -1,7 +1,8 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from .models import UserNotificationSetting,NotificationSubjectAll
-from .helpers import sent_email,sent_in_app,sent_push,format_notification_attribute,get_notification_type_attributes_email,get_notification_type_attributes_users
+from .helpers import sent_mail,sent_in_app,sent_push,format_notification_attribute,get_notification_type_attributes_email,get_notification_type_attributes_users
+from .utils import bulk_convert_notification_to_email_message
 from .enums import NotifyTarget,NotificationTypes
 
 class NotificationModelMixin:
@@ -79,6 +80,7 @@ def create_notification_attributes(obj,user_group,subject,types,target,notificat
         sent_push(notification_type_attributes[NotificationTypes.PUSH])
    
     # sent email
-    sent_email(notification_type_attributes[NotificationTypes.EMAIL])
+    email_messages = bulk_convert_notification_to_email_message(notification_type_attributes[NotificationTypes.EMAIL])
+    sent_mail(email_messages)
 
     

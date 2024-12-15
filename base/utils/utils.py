@@ -3,8 +3,9 @@ from jinja2 import Template,Environment,FileSystemLoader
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from ..models import NotificationAttribute
+from ..models import NotificationAttribute,NotificationAttributeAdapter
 from django.conf import settings
+from django.core.mail import EmailMessage
 
 def get_model_attributes(obj,subject):
     try:
@@ -74,3 +75,31 @@ def format_template(template_name,context):
     env = Environment(loader=FileSystemLoader('templates'))
     template = env.get_template(template_name)
     return template.render(context)
+
+
+def bulk_convert_notification_to_email_message(notification_attributes):
+    return [convert_notification_to_email_message(na) for na in notification_attributes]
+
+def convert_notification_to_email_message(naa):
+    if isinstance(naa, NotificationAttributeAdapter):
+        subject = naa.attribute.title
+        body = naa.attribute.email_template if naa.attribute.email_template != '' else naa.attribute.body
+        sender_email = settings.DEFAULT_FROM_EMAIL
+        recipient_emails = [naa.user.email]
+        
+        # Create an EmailMessage instance
+        msg = EmailMessage(subject, body, sender_email, recipient_emails)
+        msg.content_subtype = "html"
+        
+        # Retrieve the attachments from the Attachment model using the provided IDs
+        attachment_ids = [naa.attribute.email_attachment_id]
+        # for attachment_id in attachment_ids:
+        #     try:
+        #         attachment = Attachment.objects.get(id=attachment_id)
+        #         msg.attach_file(attachment.file.path)  # Use the file's path on the disk
+        #     except Attachment.DoesNotExist:
+        #         print(f"Attachment with ID {attachment_id} not found.")
+        
+        return msg
+    else:
+        raise ValueError("NotificationAttribute is not valid.")
