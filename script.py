@@ -63,7 +63,7 @@ def try_mixin(model, object_id, subject):
     if record:
         record.notify(
             subject=subject,
-            types=[NotificationTypes.EMAIL],
+            types=[NotificationTypes.PUSH],
             target = NotifyTarget.ALL,
             # notification_attribute=na
             )
