@@ -3,7 +3,7 @@ from jinja2 import Template,Environment,FileSystemLoader
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from ..models import NotificationAttribute,NotificationAttributeAdapter
+from ..models import NotificationAttribute,NotificationAttributeAdapter,UserNotificationSetting,NotificationSubjectAll,NotificationSubscriber
 from django.conf import settings
 from django.core.mail import EmailMessage
 
@@ -64,6 +64,17 @@ def get_user_not_in_group_all(model):
             ~Q(notification_settings__content_type=content_type),
         )
 
+def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
+    users_to_create = get_user_not_in_group_all(model)
+    if users_to_create.exists():
+        content_type = ContentType.objects.get_for_model(model)
+        notification_to_create = [
+            UserNotificationSetting(user=user, subject=subject, content_type=content_type)
+            for user in users_to_create
+            for subject in subjects
+        ]
+        UserNotificationSetting.objects.bulk_create(notification_to_create)
+ 
 def format_message(template,context):
     return Template(template).render(context)
 
@@ -76,11 +87,40 @@ def format_template(template_name,context):
     template = env.get_template(template_name)
     return template.render(context)
 
+def add_subscriber(user_id, model, object_id):
+    user = User.objects.get(id=user_id)
+    if user:
+        content_type = ContentType.objects.get_for_model(model)
+        notificationSubs = NotificationSubscriber.objects.filter(
+            content_type=content_type,
+            generic_object_id=object_id
+        ).first()
+        
+        if notificationSubs: # and user not in notificationSubs.subscribers.all():
+            notificationSubs.subscribers.add(user)
+            return f'{user.username} added successfully.'
+        else:
+            return 'No subscribers found.'
 
-def bulk_convert_notification_to_email_message(notification_attributes):
-    return [convert_notification_to_email_message(na) for na in notification_attributes]
+def remove_subscriber(user_id, model, object_id):
+    user = User.objects.get(id=user_id)
+    if user:
+        content_type = ContentType.objects.get_for_model(model)
+        notificationSubs = NotificationSubscriber.objects.filter(
+            content_type=content_type,
+            generic_object_id=object_id
+        ).first()
+        
+        if notificationSubs:
+            notificationSubs.subscribers.remove(user)
+            return f'{user.username} removed successfully.'
+        else: 
+            return 'No subscribers found.'
+        
+def convert_notifications_to_email_messages(notification_attributes):
+    return [notification_attribute_to_email_message(na) for na in notification_attributes]
 
-def convert_notification_to_email_message(naa):
+def notification_attribute_to_email_message(naa):
     if isinstance(naa, NotificationAttributeAdapter):
         subject = naa.attribute.title
         body = naa.attribute.email_template if naa.attribute.email_template != '' else naa.attribute.body

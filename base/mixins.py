@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from .models import UserNotificationSetting,NotificationSubjectAll
 from .helpers import sent_mail,sent_in_app,sent_push,format_notification_attribute,get_notification_type_attributes_email,get_notification_type_attributes_users
-from .utils import bulk_convert_notification_to_email_message
+from .utils import convert_notifications_to_email_messages
 from .enums import NotifyTarget,NotificationTypes
 
 class NotificationModelMixin:
@@ -75,12 +75,15 @@ def create_notification_attributes(obj,user_group,subject,types,target,notificat
         notification_type_attributes = get_notification_type_attributes_email(user_group,obj,na)
     else:
         notification_type_attributes = get_notification_type_attributes_users(user_group,subject,types,obj,na)
-        # sent in_app and push
-        sent_in_app(notification_type_attributes[NotificationTypes.IN_APP])
-        sent_push(notification_type_attributes[NotificationTypes.PUSH])
+        # sent in_app
+        in_app_notifications = notification_type_attributes[NotificationTypes.IN_APP]
+        sent_in_app(in_app_notifications)
+
+        # sent push
+        push_notifications = notification_type_attributes[NotificationTypes.PUSH]
+        sent_push(push_notifications)
    
     # sent email
-    email_messages = bulk_convert_notification_to_email_message(notification_type_attributes[NotificationTypes.EMAIL])
-    sent_mail(email_messages)
+    email_notifications = convert_notifications_to_email_messages(notification_type_attributes[NotificationTypes.EMAIL])
+    sent_mail(email_notifications)
 
-    

@@ -27,6 +27,7 @@ def get_notification_type_attributes_users(user_group,subject,types,obj,na):
                 NotificationTypes.EMAIL:True, NotificationTypes.PUSH:True
                 }
 
+        # check if user have 'all' and 'subject' settings enabled
         if user_group[user][NotificationSubjectAll.ALL][NotificationTypes.NOTIFICATIONS_ENABLED] and user_group[user][subject][NotificationTypes.NOTIFICATIONS_ENABLED]:
             if NotificationTypes.IN_APP in types and\
             user_group[user][NotificationSubjectAll.ALL][NotificationTypes.IN_APP] and user_group[user][subject][NotificationTypes.IN_APP]:
@@ -101,7 +102,6 @@ def sent_in_app(notification_attributes):
             for una in notification_attributes
         ]
         Notification.objects.bulk_create(settings_to_create_in_app)
-
 
 def sent_mail(email_messages):
     if isinstance(email_messages, EmailMessage):

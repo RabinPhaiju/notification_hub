@@ -89,7 +89,7 @@ class NotificationAttribute:
 class NotificationAttributeAdapter:
     attribute: object = None
     user: object = None
-    type: object = None
+    type: object = None # optional
 
     def __str__(self):
         return f"NotificationAttribute for {self.user} via {self.notification_type}"

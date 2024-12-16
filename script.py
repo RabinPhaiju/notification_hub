@@ -8,7 +8,7 @@ from base.models import UserNotificationSetting,NotificationSubscriber,Notificat
 from django.contrib.contenttypes.models import ContentType
 from forum.models import ForumPost,ForumPostReply,ForumNotificationSubject,ForumReplyNotificationSubject
 from offer.models import Offer,OfferNotificationSubject
-from base.utils import get_user_not_in_group_all
+from base.utils import get_user_not_in_group_all,create_notification_settings,add_subscriber,remove_subscriber
 from base.enums import NotifyTarget,NotificationTypes
 
 def create_user(username, email, password):
@@ -18,11 +18,6 @@ def create_user(username, email, password):
         password=password
     )
     user.save()
-
-def print_users():
-    users = User.objects.all()
-    for user in users:
-        print(user.username)
 
 def print_user_notification_settings(username):
     user = User.objects.filter(username=username)
@@ -36,34 +31,6 @@ def print_user_notification_settings(username):
             print("No settings found.")
     else:
         print("User not found.")
-
-def add_subscriber_to_forum(user_name, model, object_id):
-    user = User.objects.get(username=user_name)
-    # to add users to subscribers, add directly no need to check the user's settings.
-    content_type = ContentType.objects.get_for_model(model)
-    notificationSubs = NotificationSubscriber.objects.filter(
-        content_type=content_type,
-        generic_object_id=object_id
-    ).first()
-    
-    if notificationSubs: # and user not in notificationSubs.subscribers.all():
-        notificationSubs.subscribers.add(user)
-    else: 
-        print("No subscribers found.")
-
-def remove_subscriber_from_forum(user_name, model, object_id):
-    # directly remove user from subscribers
-    user = User.objects.get(username=user_name)
-    content_type = ContentType.objects.get_for_model(model)
-    notificationSubs = NotificationSubscriber.objects.filter(
-        content_type=content_type,
-        generic_object_id=object_id
-    ).first()
-    
-    if notificationSubs:
-        notificationSubs.subscribers.remove(user)
-    else: 
-        print("No subscribers found.")
 
 def print_notification_subscribers(model, object_id):
     content_type = ContentType.objects.get_for_model(model)
@@ -101,23 +68,11 @@ def try_mixin(model, object_id, subject):
             # notification_attribute=na
             )
 
-def create_notification_settings(model, subjects=[NotificationSubjectAll.ALL]):
-    users_to_create = get_user_not_in_group_all(model)
-    if users_to_create.exists():
-        content_type = ContentType.objects.get_for_model(model)
-        notification_to_create = [
-            UserNotificationSetting(user=user, subject=subject, content_type=content_type)
-            for user in users_to_create
-            for subject in subjects
-        ]
-        UserNotificationSetting.objects.bulk_create(notification_to_create)
- 
 # commands:
 # create_user('shyam11', 'shyam11@example.com', 'password')
-# print_users()
 # print_user_notification_settings('ram')
-# add_subscriber_to_forum('ram',ForumPost,1)
-# remove_subscriber_from_forum('ram',ForumPost,1)
+# add_subscriber('ram',ForumPost,1)
+# remove_subscriber('ram',ForumPost,1)
 # print_notification_subscribers(ForumPost, 1)
 # update_forum_post_title(ForumPost, 1, "post 1 updated")
 # create_notification_settings(Offer)
