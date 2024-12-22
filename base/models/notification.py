@@ -62,6 +62,8 @@ class NotificationAttribute:
     email_attachment_id: Optional[str] = None
     push_data: Optional[str] = None
 
+    # .copy() method
+
     def as_dict(self, type):
         if type == 'email':
             return {
