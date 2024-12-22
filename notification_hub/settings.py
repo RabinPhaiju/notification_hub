@@ -38,12 +38,29 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    "push_notifications",
+
     'forum.apps.ForumConfig',
     'base.apps.BaseConfig',
     'offer.apps.OfferConfig',
 ]
 
 INSTALLED_APPS += ('django_jinja',)
+
+# Import the firebase service
+import firebase_admin
+
+# Initialize the default app (either use `GOOGLE_APPLICATION_CREDENTIALS` environment variable, or pass a firebase_admin.credentials.Certificate instance)
+default_app = firebase_admin.initialize_app()
+
+PUSH_NOTIFICATIONS_SETTINGS = {
+        "APNS_CERTIFICATE": "/path/to/your/certificate.pem",
+        "APNS_TOPIC": "com.example.push_test",
+        "WNS_PACKAGE_SECURITY_ID": "[your package security id, e.g: 'ms-app://e-3-4-6234...']",
+        "WNS_SECRET_KEY": "[your app secret key, e.g.: 'KDiejnLKDUWodsjmewuSZkk']",
+        "WP_PRIVATE_KEY": "/path/to/your/private.pem",
+        "WP_CLAIMS": {'sub': "mailto:development@example.com"}
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
