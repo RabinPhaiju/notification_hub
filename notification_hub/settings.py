@@ -52,7 +52,7 @@ import firebase_admin
 
 # Initialize the default app (either use `GOOGLE_APPLICATION_CREDENTIALS` environment variable, or pass a firebase_admin.credentials.Certificate instance)
 default_app = firebase_admin.initialize_app()
-
+# https://github.com/jazzband/django-push-notifications
 PUSH_NOTIFICATIONS_SETTINGS = {
         "APNS_CERTIFICATE": "/path/to/your/certificate.pem",
         "APNS_TOPIC": "com.example.push_test",

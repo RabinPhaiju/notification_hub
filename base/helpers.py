@@ -1,11 +1,14 @@
 from .models import MailMessage,CloudMessage,NotificationAttributeAdapter,Notification,NotificationSubjectAll
 import json
+from typing import Optional,Dict
 from copy import deepcopy
 from .utils import get_model_attributes,format_message
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.contrib.auth.models import AnonymousUser
 from .enums import NotificationTypes
+from push_notifications.models import GCMDevice
+from push_notifications.gcm import send_message, dict_to_fcm_message
 
 def format_notification_attribute(obj,subject,notification_attribute):
     na = notification_attribute or get_model_attributes(obj,subject)
@@ -75,33 +78,77 @@ def get_push_notification_attributes(obj,user,_na):
     na.push_data=json.dumps(json_data)
     return NotificationAttributeAdapter(user=user,type=NotificationTypes.PUSH,attribute=na)
 
+def sent_in_app(in_app_messages):
+    if isinstance(in_app_messages, Notification):
+        in_app_messages = [in_app_messages]
+    elif not isinstance(in_app_messages,list):
+        raise ValueError("in_app_messages must be a list or a single Notification instance.")
+    
+    # better to create Notification class instance here not passing or warp with other object
+    Notification.objects.bulk_create(in_app_messages)
 
-def sent_push(attributes):
-    if attributes:
-        settings_to_create_cloud = [
-            CloudMessage(
-                user=una.user,
-                title=una.attribute.title,
-                body=una.attribute.body,
-                data=una.attribute.push_data
-            )
-            for una in attributes
-        ]
-        CloudMessage.objects.bulk_create(settings_to_create_cloud)
+def build_push_message(
+    title: Optional[str] = None,
+    body: Optional[str] = None,
+    message: Optional[str] = None,
+    data: Optional[Dict] = None,
+    time_to_live: Optional[int] = None,
+    priority: Optional[str] = None,
+    condition: Optional[str] = None,
+    topic: Optional[str] = None,
+    android_config: Optional[Dict] = None,  # For Android-specific settings
+    ios_config: Optional[Dict] = None,      # For iOS-specific settings
+    platform: Optional[str] = None,
+    channel_id: Optional[str] = None
+) -> Dict:
+    # Generic settings
+    message_kwargs = {
+        'icon': 'myicon',
+        'sound': 'default',
+        'badge': 1,
+        'click_action': 'OPEN_ACTIVITY',
+        'priority': 'high',
+        'time_to_live': 3600,
+        'collapse_key': 'my_collapse_key', # preventing message flooding.
 
-def sent_in_app(notification_attributes):
-    if notification_attributes:
-        settings_to_create_in_app = [
-            Notification(
-                user=una.user,
-                title=una.attribute.title,
-                description=una.attribute.body,
-                action_link=una.attribute.action_link,
-                image_url=una.attribute.image_url
-                )
-            for una in notification_attributes
-        ]
-        Notification.objects.bulk_create(settings_to_create_in_app)
+        # Used for localization
+        # 'title_loc_key': None,
+        # 'title_loc_args': None,
+        # 'body_loc_key': None,
+        # 'body_loc_args': None,
+    }
+
+    if message:
+        message_kwargs['message'] = message
+    if title:
+        message_kwargs['title'] = title
+    if body:
+        message_kwargs['body'] = body
+    if data:
+        message_kwargs['data'] = data
+    if time_to_live:
+        message_kwargs['time_to_live'] = time_to_live
+    if priority:
+        message_kwargs['priority'] = priority
+    if condition:
+        message_kwargs['condition'] = condition
+    if topic:
+        message_kwargs['topic'] = topic
+
+    if android_config and (platform is None or platform.lower() == "android"):
+        message_kwargs['android'] = {"notification": android_config}
+        message_kwargs['android']['notification']['channel_id'] = channel_id
+        if data:
+            message_kwargs['data']["platform"] = "android"
+    if ios_config and (platform is None or platform.lower() == "ios"):
+        message_kwargs['apns'] = {"payload": {"aps": ios_config}}
+        if data:
+            message_kwargs['data']["platform"] = "ios"
+
+    if platform is not None and platform.lower() not in ["android", "ios"]:
+        raise ValueError("Invalid platform specified. Must be 'android' or 'ios'.")
+
+    return message_kwargs
 
 def sent_mail(email_messages):
     if isinstance(email_messages, EmailMessage):
@@ -125,3 +172,52 @@ def sent_mail(email_messages):
     ]
     MailMessage.objects.bulk_create(mail_messages)
     
+def sent_push(push_messages): # for now its list of dict
+    if not isinstance(push_messages, list):
+        raise ValueError("push_messages must be a list.")
+
+    push_messages_to_create = [
+        CloudMessage(
+            user=push_message['user'],
+            title=push_message['title'],
+            body=push_message['body'],
+            data=push_message['data'],
+            priority=push_message.get('priority', 'normal')
+        ) 
+        for push_message in push_messages
+    ]
+
+    CloudMessage.objects.bulk_create(push_messages_to_create)
+
+    # sent push notification
+    # devices = GCMDevice.objects.get(user=user)
+    # sent_push_notification(devices, title=title, body=body, data=data)
+
+def sent_push_notification(devices, **kwargs) -> None:
+    try:
+        message_kwargs = build_push_message(**kwargs)
+        print(message_kwargs)
+        # result,response = devices.send_message(message=None,data=None,**message_kwargs)
+        print(f"Message sent successfully {'result'}")
+    except Exception as e:
+        print(f"Error sending message: {e}")
+
+def sent_topic_notification(**kwargs) -> None:
+    try:
+        message_kwargs = build_push_message(**kwargs)
+        print("Message Payload:", message_kwargs)
+        fcm_message = dict_to_fcm_message(message_kwargs)
+
+        topic = kwargs.get('topic')
+        condition = kwargs.get('condition')
+
+        if topic:
+            send_message(None, fcm_message, to=f"/topics/{topic}")
+            print(f"Message sent successfully to topic '{topic}'.")
+        elif condition:
+            send_message(None, fcm_message, to=condition)
+            print(f"Message sent successfully to condition '{condition}'.")
+        else:
+            raise ValueError("Either 'topic' or 'condition' must be provided.")
+    except Exception as e:
+        print(f"Error sending message: {e}")

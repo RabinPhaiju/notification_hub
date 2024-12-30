@@ -3,7 +3,7 @@ from jinja2 import Template,Environment,FileSystemLoader
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from ..models import NotificationAttribute,NotificationAttributeAdapter,UserNotificationSetting,NotificationSubjectAll,NotificationSubscriber
+from ..models import NotificationAttribute,NotificationAttributeAdapter,UserNotificationSetting,NotificationSubjectAll,NotificationSubscriber,Notification
 from django.conf import settings
 from django.core.mail import EmailMessage
 
@@ -141,5 +141,35 @@ def notification_attribute_to_email_message(naa):
         #         print(f"Attachment with ID {attachment_id} not found.")
         
         return msg
+    else:
+        raise ValueError("NotificationAttribute is not valid.")
+
+def convert_notifications_to_cloud_messages(notification_attributes):
+    return [notification_attribute_to_cloud_message(na) for na in notification_attributes]
+
+def notification_attribute_to_cloud_message(naa):
+    if isinstance(naa, NotificationAttributeAdapter):
+        return {
+            'user': naa.user,
+            'title': naa.attribute.title,
+            'body': naa.attribute.body,
+            'data': naa.attribute.push_data,
+        }
+    else:
+        raise ValueError("NotificationAttribute is not valid.")
+
+def convert_notifications_to_in_app_messages(notification_attributes):
+    return [notification_attribute_to_in_app_message(na) for na in notification_attributes]
+
+def notification_attribute_to_in_app_message(naa):
+    if isinstance(naa, NotificationAttributeAdapter):
+        return Notification(
+            user=naa.user,
+            title=naa.attribute.title,
+            body=naa.attribute.body,
+            data=naa.attribute.push_data,
+            action_link=naa.attribute.action_link,
+            image_url=naa.attribute.image_url,
+        )
     else:
         raise ValueError("NotificationAttribute is not valid.")

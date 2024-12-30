@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from ..registry import get_subject_choices
+from .choices import PriorityChoices
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -15,10 +16,12 @@ class Notification(BaseModel):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     is_read = models.BooleanField(default=False)
     title = models.CharField(max_length=100)
-    description = models.TextField()
+    body = models.TextField(null=True, blank=True)
+    data = models.JSONField(null=True, blank=True)  # Store custom data as JSON
+    extra = models.JSONField(null=True, blank=True)
+    priority = models.CharField(max_length=10, choices=PriorityChoices.choices, default=PriorityChoices.NORMAL)
     image_url = models.URLField(blank=True, null=True)
     action_link = models.URLField(blank=True, null=True)
-    slug = models.SlugField(max_length=100, unique=False, null=True, blank=True)
 
     def __str__(self):
         return self.title

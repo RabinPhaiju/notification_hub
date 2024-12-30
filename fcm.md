@@ -18,20 +18,6 @@ For topic based notification, we cannot use our userNotificationsettngs. userNot
     - condition: "'TopicA' in topics && ('TopicB' in topics || 'TopicC' in topics)"
 
 * push_message format
-    - messaging.Message( # Data payload
-        data={
-            'score': '850',
-            'time': '2:45',
-        },
-        topic=topic,
-    )
-    - messaging.Message( # notification payload
-        notification=messaging.Notification(
-            title='$GOOG up 1.43% on the day',
-            body='$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.',
-        ),
-        condition=condition,
-    )
     - messaging.Message( # both
         data={
             'score': '850',
@@ -45,6 +31,14 @@ For topic based notification, we cannot use our userNotificationsettngs. userNot
     )
     response = messaging.send(message)
 
+## Equivalent of push notification
+fcm_device.send_message(
+    data={'score': '850', 'time': '2:45'},
+    title='$GOOG up 1.43% on the day',
+    body='$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.',
+    condition=condition, 
+    topic=topic
+)
 -------------------------------------------------
 * device group
     - create per user device group(user can have multiple devices)
