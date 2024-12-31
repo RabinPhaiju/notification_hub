@@ -34,8 +34,8 @@ def get_notification_type_attributes_users(target_user_group,subject,types,obj,n
         if target_user_group[user][NotificationSubjectAll.ALL][NotificationTypes.NOTIFICATIONS_ENABLED] and target_user_group[user][subject][NotificationTypes.NOTIFICATIONS_ENABLED]:
             if NotificationTypes.IN_APP in types and\
             target_user_group[user][NotificationSubjectAll.ALL][NotificationTypes.IN_APP] and target_user_group[user][subject][NotificationTypes.IN_APP]:
-                naa = NotificationAttributeAdapter(user=user,type=NotificationTypes.IN_APP,attribute=na)
-                in_app_attributes.append(naa)
+                # to support push in in_app
+                in_app_attributes.append(get_push_notification_attributes(obj,user,na,NotificationTypes.IN_APP))
 
             if NotificationTypes.EMAIL in types and\
             target_user_group[user][NotificationSubjectAll.ALL][NotificationTypes.EMAIL] and target_user_group[user][subject][NotificationTypes.EMAIL]:
@@ -68,15 +68,19 @@ def get_email_notification_attributes(obj,user,_na):
     na.email_attachment_id=na.email_attachment_id or getattr(obj, 'email_attachment_id', '')
     return NotificationAttributeAdapter(user=user,type=NotificationTypes.EMAIL,attribute=na)
 
-def get_push_notification_attributes(obj,user,_na):
+def get_push_notification_attributes(obj,user,_na,type=NotificationTypes.PUSH):
     na = deepcopy(_na)
     json_data = json.loads(na.push_data or '{}') # can be moved to format_notification_attribute
     json_data['id'] = str(obj.id)
     json_data['title'] = na.title
     json_data['message'] = na.body
     json_data['action_link'] = na.action_link
+    # format message
+    for key,value in json_data.items():
+        json_data[key] = format_message(value,{'obj':obj})
+
     na.push_data=json.dumps(json_data)
-    return NotificationAttributeAdapter(user=user,type=NotificationTypes.PUSH,attribute=na)
+    return NotificationAttributeAdapter(user=user,type=type,attribute=na)
 
 def sent_in_app(in_app_messages):
     if isinstance(in_app_messages, Notification):
