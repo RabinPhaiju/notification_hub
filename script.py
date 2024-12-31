@@ -65,7 +65,7 @@ def try_mixin(model, object_id, subject):
         record.notify(
             subject=subject,
             types=[NotificationTypes.IN_APP],
-            target = NotifyTarget.ALL,
+            target = NotifyTarget.ALL, # NotifyTarget.TOPIC
             # notification_attribute=na
             )
         

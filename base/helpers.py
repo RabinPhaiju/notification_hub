@@ -1,4 +1,4 @@
-from .models import MailMessage,CloudMessage,NotificationAttributeAdapter,Notification,NotificationSubjectAll
+from .models import MailMessage,CloudMessage,NotificationAttributeAdapter,Notification,NotificationSubjectAll,PriorityChoices
 import json
 from typing import Optional,Dict
 from copy import deepcopy
@@ -18,31 +18,31 @@ def format_notification_attribute(obj,subject,notification_attribute):
     na.image_url=na.image_url or getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else ''
     return na
 
-def get_notification_type_attributes_users(user_group,subject,types,obj,na):
+def get_notification_type_attributes_users(target_user_group,subject,types,obj,na):
     in_app_attributes = []
     email_attributes = []
     push_attributes = []
-    for user in user_group:
+    for user in target_user_group:
         # check if user have 'subject' settings
-        if not user_group[user].get(subject,False):
-            user_group[user][subject.lower()] = {
+        if not target_user_group[user].get(subject,False):
+            target_user_group[user][subject.lower()] = {
                 NotificationTypes.NOTIFICATIONS_ENABLED:True, NotificationTypes.IN_APP:True,
                 NotificationTypes.EMAIL:True, NotificationTypes.PUSH:True
                 }
 
         # check if user have 'all' and 'subject' settings enabled
-        if user_group[user][NotificationSubjectAll.ALL][NotificationTypes.NOTIFICATIONS_ENABLED] and user_group[user][subject][NotificationTypes.NOTIFICATIONS_ENABLED]:
+        if target_user_group[user][NotificationSubjectAll.ALL][NotificationTypes.NOTIFICATIONS_ENABLED] and target_user_group[user][subject][NotificationTypes.NOTIFICATIONS_ENABLED]:
             if NotificationTypes.IN_APP in types and\
-            user_group[user][NotificationSubjectAll.ALL][NotificationTypes.IN_APP] and user_group[user][subject][NotificationTypes.IN_APP]:
+            target_user_group[user][NotificationSubjectAll.ALL][NotificationTypes.IN_APP] and target_user_group[user][subject][NotificationTypes.IN_APP]:
                 naa = NotificationAttributeAdapter(user=user,type=NotificationTypes.IN_APP,attribute=na)
                 in_app_attributes.append(naa)
 
             if NotificationTypes.EMAIL in types and\
-            user_group[user][NotificationSubjectAll.ALL][NotificationTypes.EMAIL] and user_group[user][subject][NotificationTypes.EMAIL]:
+            target_user_group[user][NotificationSubjectAll.ALL][NotificationTypes.EMAIL] and target_user_group[user][subject][NotificationTypes.EMAIL]:
                 email_attributes.append(get_email_notification_attributes(obj,user,na))
 
             if NotificationTypes.PUSH in types and\
-            user_group[user][NotificationSubjectAll.ALL][NotificationTypes.PUSH] and user_group[user][subject][NotificationTypes.PUSH]: 
+            target_user_group[user][NotificationSubjectAll.ALL][NotificationTypes.PUSH] and target_user_group[user][subject][NotificationTypes.PUSH]: 
                 push_attributes.append(get_push_notification_attributes(obj,user,na))
     
     return {
@@ -188,7 +188,7 @@ def sent_push(push_messages): # for now its list of dict
             title=push_message['title'],
             body=push_message['body'],
             data=push_message['data'],
-            priority=push_message.get('priority', 'normal')
+            priority=push_message.get('priority', PriorityChoices.NORMAL.value),
         ) 
         for push_message in push_messages
     ]

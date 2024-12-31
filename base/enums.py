@@ -2,6 +2,7 @@ from enum import Enum
 
 class NotifyTarget(Enum):
     ALL = 'all'
+    TOPIC = 'topic'
     SUBSCRIBERS = 'subscribers'
     NEWSLETTER = 'newsletter'
     NEWSLETTER_EMAIL = 'newsletter_email'
