@@ -13,6 +13,7 @@ def format_notification_attribute(obj,subject,notification_attribute):
     na.body = format_message(na.body,{'obj':obj})
     na.action_link = na.action_link or getattr(obj, 'action_link', '') if hasattr(obj, 'action_link') else ''
     na.image_url=na.image_url or getattr(obj, 'image_url', '') if hasattr(obj, 'image_url') else ''
+    na.image_url = format_message(na.image_url,{'obj':obj})
     return na
 
 def get_notification_type_attributes_users(user_group,subject,types,obj,na):
@@ -72,6 +73,7 @@ def get_push_notification_attributes(obj,user,_na,type=NotificationTypes.PUSH):
     json_data['title'] = na.title
     json_data['message'] = na.body
     json_data['action_link'] = na.action_link
+    # json_data['image_url'] = na.image_url
     # format message
     for key,value in json_data.items():
         json_data[key] = format_message(value,{'obj':obj})
