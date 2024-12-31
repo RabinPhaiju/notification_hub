@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     "push_notifications",
+    "rest_framework",
 
     'forum.apps.ForumConfig',
     'base.apps.BaseConfig',
