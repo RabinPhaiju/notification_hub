@@ -108,7 +108,8 @@ def try_push():
         android_config=android_settings,
         ios_config=ios_settings,
         channel_id= "android_channel_id",
-        priority=PriorityChoices.NORMAL.value
+        priority=PriorityChoices.NORMAL.value,
+        topic='all'
     )
 
 
@@ -126,6 +127,6 @@ def try_push():
 try_mixin(Offer, 1, OfferNotificationSubject.NEW_OFFER)
 
 # add_to_gcm()
-# try_push()
+# try_push() # topics all/news
 
 

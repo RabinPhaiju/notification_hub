@@ -83,6 +83,8 @@ def sent_in_app(in_app_messages):
         in_app_messages = [in_app_messages]
     elif not isinstance(in_app_messages,list):
         raise ValueError("in_app_messages must be a list or a single Notification instance.")
+    elif len(in_app_messages) == 0:
+        return
     
     # better to create Notification class instance here not passing or warp with other object
     Notification.objects.bulk_create(in_app_messages)
@@ -155,6 +157,8 @@ def sent_mail(email_messages):
         email_messages = [email_messages]
     elif not isinstance(email_messages, list):
         raise ValueError("email_messages must be a list or a single EmailMessage instance.")
+    elif len(email_messages) == 0:
+        return
     
     # Send the emails
     # for email_message in email_messages:
@@ -175,6 +179,8 @@ def sent_mail(email_messages):
 def sent_push(push_messages): # for now its list of dict
     if not isinstance(push_messages, list):
         raise ValueError("push_messages must be a list.")
+    elif len(push_messages) == 0:
+        return
 
     push_messages_to_create = [
         CloudMessage(
