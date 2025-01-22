@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-+%#d60)zjqiob*06@^y^3x2dio=l1gow)#y-^i3rei&wj49ljm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '10.0.2.2',  # Add this for Android emulator
+]
 
 
 # Application definition
@@ -49,19 +53,19 @@ INSTALLED_APPS = [
 INSTALLED_APPS += ('django_jinja',)
 
 # Import the firebase service
-import firebase_admin
+# import firebase_admin
 
 # Initialize the default app (either use `GOOGLE_APPLICATION_CREDENTIALS` environment variable, or pass a firebase_admin.credentials.Certificate instance)
-default_app = firebase_admin.initialize_app()
+# default_app = firebase_admin.initialize_app()
 # https://github.com/jazzband/django-push-notifications
-PUSH_NOTIFICATIONS_SETTINGS = {
-        "APNS_CERTIFICATE": "/path/to/your/certificate.pem",
-        "APNS_TOPIC": "com.example.push_test",
-        "WNS_PACKAGE_SECURITY_ID": "[your package security id, e.g: 'ms-app://e-3-4-6234...']",
-        "WNS_SECRET_KEY": "[your app secret key, e.g.: 'KDiejnLKDUWodsjmewuSZkk']",
-        "WP_PRIVATE_KEY": "/path/to/your/private.pem",
-        "WP_CLAIMS": {'sub': "mailto:development@example.com"}
-}
+# PUSH_NOTIFICATIONS_SETTINGS = {
+#         "APNS_CERTIFICATE": "/path/to/your/certificate.pem",
+#         "APNS_TOPIC": "com.example.push_test",
+#         "WNS_PACKAGE_SECURITY_ID": "[your package security id, e.g: 'ms-app://e-3-4-6234...']",
+#         "WNS_SECRET_KEY": "[your app secret key, e.g.: 'KDiejnLKDUWodsjmewuSZkk']",
+#         "WP_PRIVATE_KEY": "/path/to/your/private.pem",
+#         "WP_CLAIMS": {'sub': "mailto:development@example.com"}
+# }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
